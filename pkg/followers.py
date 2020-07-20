@@ -234,30 +234,41 @@ class FollowersAPIHandler(APIHandler):
                                     continue
                                     
                                 if min(float(item['limit1']), float(item['limit2'])) <= float(original_value) <= max(float(item['limit1']), float(item['limit2'])):
-                                #if original_value in range(float(item['limit1']), float(item['limit2'])):
                                     output = translate(original_value, item['limit1'], item['limit2'], item['limit3'], item['limit4'])
                                     #print("got translated output: " + str(output))
 
                             
                                     if 'previous_value' not in item:
                                         item['previous_value'] = None
-                            
-                                
-                                    if item['previous_value'] is not get_int_or_float(output):
+
+                                    try:
+                                        numeric_value = get_int_or_float(output)
+                                        #print("initial numeric_value = " + str(numeric_value))
+                                        if 'property2_type' in item:
+                                            if str(item['property2_type']) == 'integer':
+                                                numeric_value = round(numeric_value)
+                                            else:
+                                                print("property2_type wasnt integer")
+                                        else:
+                                            print("property2_type was not in item")
+                                    except Exception as ex:
+                                        print("Error turning into int: " + str(ex))
+                                        continue
                                         
+                                    if str(item['previous_value']) != str(numeric_value):
+                                        item['previous_value'] = numeric_value
+
                                         try:
-                                            item['previous_value'] = get_int_or_float(output)
-                                        
                                             if self.DEBUG:
-                                                print("new value, will update via API: " + str(item['previous_value']))
+                                                print("new value for " + str(item['thing2']) + " - " + str(item['property2']) + ", will update via API: " + str(numeric_value))
                             
                                         
-                                            data_to_put = { str(item['property2']) : get_int_or_float(output) }
-                                            #print(str(data_to_put))
+                                            data_to_put = { str(item['property2']) : numeric_value }
+                                            #print("data_to_put = " + str(data_to_put))
                                             api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
                                             #print("api_put_result = " + str(api_put_result))
 
-                                            #if api_put_result[str(item['property2'])] == output:
+                                            #if api_put_result[str(item['property2'])] == str(numeric_value):
                                             #    print("API PUT was succesfull")
                                             #else:
                                             #    print("API PUT failed")
@@ -306,52 +317,89 @@ class FollowersAPIHandler(APIHandler):
 
 
                             return APIResponse(
-                              status=200,
-                              content_type='application/json',
-                              content=json.dumps({'state' : state, 'items' : self.persistent_data['items']}),
+                                status=200,
+                                content_type='application/json',
+                                content=json.dumps({'state' : state, 'items' : self.persistent_data['items']}),
                             )
                         except Exception as ex:
                             print("Error getting init data: " + str(ex))
                             return APIResponse(
-                              status=500,
-                              content_type='application/json',
-                              content=json.dumps({'state' : "Internal error: no thing data", 'items' : []}),
+                                status=500,
+                                content_type='application/json',
+                                content=json.dumps({'state' : "Internal error: no thing data", 'items' : []}),
                             )
                             
                     
                     elif request.path == '/update_items':
                         try:
                             self.persistent_data['items'] = request.body['items']
-                            self.save_persistent_data()
+                            
+                            
+                            print("")
+                            # Get all the things via the API.
+                            try:
+                                self.things = self.api_get("/things")
+                                #print("Did the things API call")
+                            except Exception as ex:
+                                print("Error getting updated things data via API: " + str(ex))
+                                
+                            # try to get the correct property type (integer/float)
+                            try:
+                                for item in self.persistent_data['items']:
+                                    print("_item: " + str(item))
+                                    if 'thing2' in item and 'property2' in item:
+                                        for thing in self.things:
+                                            thing_id = str(thing['id'].rsplit('/', 1)[-1])
+                                            #print("__id: " + str(thing_id))
+                                            if str(item['thing2']) == thing_id:
+                                                #print("BINGO. Props:")
+                                                #print(str(thing['properties']))
+                                                for thing_property_key in thing['properties']:
+                                                    
+                                                    property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                                    #print("property_id = " + str(property_id))
+                                                    if str(item['property2']) == property_id:
+                                                        print("bingo for property: " + str(property_id))
+                                                        print("___type: " + str(thing['properties'][thing_property_key]['type']))
+
+                                                        #self.persistent_data['items'][item]['property2_type'] = str(thing['properties'][thing_property_key]['type'])
+                                                        item['property2_type'] = str(thing['properties'][thing_property_key]['type'])
+
+                      
+                            except Exception as ex:
+                                print("Error finding if property should be int or float: " + str(ex))
+                            
+                            self.save_persistent_data()    
+                                
                             
                             return APIResponse(
-                              status=200,
-                              content_type='application/json',
-                              content=json.dumps({'state' : 'ok'}),
+                                status=200,
+                                content_type='application/json',
+                                content=json.dumps({'state' : 'ok'}),
                             )
                         except Exception as ex:
                             print("Error saving updated items: " + str(ex))
                             return APIResponse(
-                              status=500,
-                              content_type='application/json',
-                              content=json.dumps("Error updating items: " + str(ex)),
+                                status=500,
+                                content_type='application/json',
+                                content=json.dumps("Error updating items: " + str(ex)),
                             )
                             
                         
                     else:
                         return APIResponse(
-                          status=500,
-                          content_type='application/json',
-                          content=json.dumps("API error"),
+                            status=500,
+                            content_type='application/json',
+                            content=json.dumps("API error"),
                         )
                         
                         
                 except Exception as ex:
                     print(str(ex))
                     return APIResponse(
-                      status=500,
-                      content_type='application/json',
-                      content=json.dumps("Error in API handler"),
+                        status=500,
+                        content_type='application/json',
+                        content=json.dumps("Error in API handler"),
                     )
                     
             else:
@@ -360,9 +408,9 @@ class FollowersAPIHandler(APIHandler):
         except Exception as e:
             print("Failed to handle UX extension API request: " + str(e))
             return APIResponse(
-              status=500,
-              content_type='application/json',
-              content=json.dumps("API Error"),
+                status=500,
+                content_type='application/json',
+                content=json.dumps("API Error"),
             )
 
 
@@ -373,6 +421,17 @@ class FollowersAPIHandler(APIHandler):
 
 
 
+
+    def cancel_pairing(self):
+        """Cancel the pairing process."""
+        print("END OF PAIRING -----------------------------")
+
+        # Get all the things via the API.
+        try:
+            self.things = self.api_get("/things")
+            #print("Did the things API call")
+        except Exception as ex:
+            print("Error, couldn't load things at init: " + str(ex))
 
 
 
@@ -406,12 +465,12 @@ class FollowersAPIHandler(APIHandler):
                 return {"error": r.status_code}
                 
             else:
-                if self.DEBUG:
-                    print("API get succesfull: " + str(r.text))
+                #if self.DEBUG:
+                #    print("API get succesfull: " + str(r.text))
                 return json.loads(r.text)
             
         except Exception as ex:
-            print("Error doing http request/loading returned json: " + str(ex))
+            print("Error doing " + str(api_path) + " request/loading returned json: " + str(ex))
             #return [] # or should this be {} ? Depends on the call perhaps.
             return {"error": 500}
 
