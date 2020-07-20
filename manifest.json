@@ -10,7 +10,7 @@
       ]
     }
   ],
-  "description": "Followers allow you to let one property follow the changes of another property",
+  "description": "Allows you to let one property follow the changes of another property",
   "gateway_specific_settings": {
     "webthings": {
       "exec": "python3 {path}/main.py",
@@ -19,7 +19,7 @@
       "strict_min_version": "0.10.0"
     }
   },
-  "homepage_url": "https://github.com/flatsiedatsie/followers",
+  "homepage_url": "https://github.com/flatsiedatsie/followers-addon",
   "id": "followers",
   "license": "MPL-2.0",
   "manifest_version": 1,
@@ -47,7 +47,7 @@
     }
   },
   "short_name": "Followers",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "web_accessible_resources": [
     "css/*.css",
     "images/*.svg",

@@ -197,15 +197,15 @@ class FollowersAPIHandler(APIHandler):
             try:
                 for item in self.persistent_data['items']:
                     if 'thing1' in item and 'thing2' in item and 'property1' in item and 'property2' in item and 'limit1' in item and 'limit2' in item and 'limit3' in item and 'limit4' in item and 'enabled' in item:
-                        print("all variables are there")
-                        print(str( bool(item['enabled']) ))
+                        #print("all variables are there")
+                        #print(str( bool(item['enabled']) ))
                         if bool(item['enabled']) is False:
-                            print("not enabled")
+                            #print("not enabled")
                             continue
                     
                     
                         api_get_result = self.api_get( '/things/' + str(item['thing1']) + '/properties/' + str(item['property1']))
-                        print("detail: " + str(item['thing1']))
+                        #print("detail: " + str(item['thing1']))
                     
                         try:
                             key = list(api_get_result.keys())[0]
@@ -216,35 +216,38 @@ class FollowersAPIHandler(APIHandler):
                         try:
                             if key == "error": 
                                 if api_get_result[key] == 500:
+                                    pass
                                     #return
-                                    print("API GET failed")
+                                    #print("API GET failed")
 
                             else:
-                                print("API GET was succesfull")
+                                #print("API GET was succesfull")
                                 original_value = api_get_result[key]
-                                print("got original value: " + str(original_value))
+                                if self.DEBUG:
+                                    print("got original value from API: " + str(original_value))
                             
                                 if min(float(item['limit1']), float(item['limit2'])) <= float(original_value) <= max(float(item['limit1']), float(item['limit2'])):
                                 #if original_value in range(float(item['limit1']), float(item['limit2'])):
                                     output = str( translate(original_value, item['limit1'], item['limit2'], item['limit3'], item['limit4']) )
-                                    print("got translated output: " + str(output))
-                                    print( "{" + str(item['property2']) )
-                                    print(str(output) + "}")
+                                    #print("got translated output: " + str(output))
+
                             
                                     if 'previous_value' not in item:
                                         item['previous_value'] = None
                             
                                 
                                     if item['previous_value'] is not get_int_or_float(output):
-                                        print("new value, will update via API.")
+                                        
                                         item['previous_value'] = get_int_or_float(output)
+                                        
+                                        if self.DEBUG:
+                                            print("new value, will update via API: " + str(item['previous_value']))
                             
                                         try:
                                             data_to_put = { str(item['property2']) : get_int_or_float(output) }
-                                            print(str(data_to_put))
+                                            #print(str(data_to_put))
                                             api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
-                                            print("tape")
-                                            print("api_put_result = " + str(api_put_result))
+                                            #print("api_put_result = " + str(api_put_result))
 
                                             #if api_put_result[str(item['property2'])] == output:
                                             #    print("API PUT was succesfull")
@@ -304,7 +307,7 @@ class FollowersAPIHandler(APIHandler):
                             return APIResponse(
                               status=500,
                               content_type='application/json',
-                              content=json.dumps("Error while getting thing data: " + str(ex)),
+                              content=json.dumps({'state' : "Internal error: no thing data", 'items' : []}),
                             )
                             
                             
