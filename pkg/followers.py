@@ -203,7 +203,8 @@ class FollowersAPIHandler(APIHandler):
                             #print("not enabled")
                             continue
                     
-                    
+                        #print("")
+                        
                         api_get_result = self.api_get( '/things/' + str(item['thing1']) + '/properties/' + str(item['property1']))
                         #print("detail: " + str(item['thing1']))
                     
@@ -224,11 +225,17 @@ class FollowersAPIHandler(APIHandler):
                                 #print("API GET was succesfull")
                                 original_value = api_get_result[key]
                                 #if self.DEBUG:
+                                #    print("type of original_value variable is: " + str(type(original_value)))
                                 #    print("got original value from API: " + str(original_value))
                             
+                            
+                                if original_value is "":
+                                    #print("original value is an empty string.") # this happens if the gateway has just been rebooted, and the property doesn not have a value yet.
+                                    continue
+                                    
                                 if min(float(item['limit1']), float(item['limit2'])) <= float(original_value) <= max(float(item['limit1']), float(item['limit2'])):
                                 #if original_value in range(float(item['limit1']), float(item['limit2'])):
-                                    output = str( translate(original_value, item['limit1'], item['limit2'], item['limit3'], item['limit4']) )
+                                    output = translate(original_value, item['limit1'], item['limit2'], item['limit3'], item['limit4'])
                                     #print("got translated output: " + str(output))
 
                             
@@ -238,12 +245,13 @@ class FollowersAPIHandler(APIHandler):
                                 
                                     if item['previous_value'] is not get_int_or_float(output):
                                         
-                                        item['previous_value'] = get_int_or_float(output)
-                                        
-                                        if self.DEBUG:
-                                            print("new value, will update via API: " + str(item['previous_value']))
-                            
                                         try:
+                                            item['previous_value'] = get_int_or_float(output)
+                                        
+                                            if self.DEBUG:
+                                                print("new value, will update via API: " + str(item['previous_value']))
+                            
+                                        
                                             data_to_put = { str(item['property2']) : get_int_or_float(output) }
                                             #print(str(data_to_put))
                                             api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
@@ -310,7 +318,6 @@ class FollowersAPIHandler(APIHandler):
                               content=json.dumps({'state' : "Internal error: no thing data", 'items' : []}),
                             )
                             
-                            
                     
                     elif request.path == '/update_items':
                         try:
@@ -329,7 +336,6 @@ class FollowersAPIHandler(APIHandler):
                               content_type='application/json',
                               content=json.dumps("Error updating items: " + str(ex)),
                             )
-                            
                             
                         
                     else:
@@ -358,8 +364,6 @@ class FollowersAPIHandler(APIHandler):
               content_type='application/json',
               content=json.dumps("API Error"),
             )
-
-
 
 
     def unload(self):
@@ -392,9 +396,9 @@ class FollowersAPIHandler(APIHandler):
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
                   'Authorization': 'Bearer ' + str(self.token),
-                }, verify=False, timeout=3)
-            if self.DEBUG:
-                print("API GET: " + str(r.status_code) + ", " + str(r.reason))
+                }, verify=False, timeout=2)
+            #if self.DEBUG:
+            #    print("API GET: " + str(r.status_code) + ", " + str(r.reason))
 
             if r.status_code != 200:
                 if self.DEBUG:
@@ -415,12 +419,12 @@ class FollowersAPIHandler(APIHandler):
     def api_put(self, api_path, json_dict):
         """Sends data to the WebThings Gateway API."""
 
-        if self.DEBUG:
-            print("PUT > api_path = " + str(api_path))
-            print("PUT > json dict = " + str(json_dict))
-            print("PUT > self.server = " + str(self.server))
+        #if self.DEBUG:
+            #print("PUT > api_path = " + str(api_path))
+            #print("PUT > json dict = " + str(json_dict))
+            #print("PUT > self.server = " + str(self.server))
             #print("PUT > self.token = " + str(self.token))
-
+            
 
         headers = {
             'Accept': 'application/json',
@@ -432,15 +436,18 @@ class FollowersAPIHandler(APIHandler):
                 json=json_dict,
                 headers=headers,
                 verify=False,
-                timeout=5
+                timeout=2
             )
-            if self.DEBUG:
-                print("API PUT: " + str(r.status_code) + ", " + str(r.reason))
+            #if self.DEBUG:
+            #print("API PUT: " + str(r.status_code) + ", " + str(r.reason))
 
             if r.status_code != 200:
-                print("Error communicating: " + str(r.status_code))
+                #if self.DEBUG:
+                #    print("Error communicating: " + str(r.status_code))
                 return {"error": str(r.status_code)}
             else:
+                if self.DEBUG:
+                    print("API PUT response: " + str(r.text))
                 return json.loads(r.text)
 
         except Exception as ex:
@@ -518,4 +525,4 @@ def get_int_or_float(v):
     if number_as_float == number_as_int:
         return number_as_int
     else:
-        return float( int( number_as_float * 100) / 100)
+        return float( int( number_as_float * 1000) / 1000)
