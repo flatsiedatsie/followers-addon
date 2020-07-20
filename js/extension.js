@@ -2,7 +2,7 @@
   class Followers extends window.Extension {
     constructor() {
       	super('followers');
-		console.log("Adding followers addon to menu");
+		//console.log("Adding followers addon to menu");
       	this.addMenuEntry('Followers');
 
       	this.content = '';
@@ -11,8 +11,6 @@
 		this.all_things;
 		
 		this.item_number = 0;
-			
-		var latest_property_id = 4;
 
 		fetch(`/extensions/${this.id}/views/content.html`)
         .then((res) => res.text())
@@ -410,10 +408,12 @@
 		}
 		
 		// Sort lists alphabetically.
+		/*
 		property1_list.sort();
 		property1_system_list.sort();
 		property2_list.sort();
 		property2_system_list.sort();
+		*/
 		
 		return { 'property1_list' : property1_list, 'property1_system_list' : property1_system_list, 'property2_list' : property2_list,'property2_system_list' : property2_system_list };
 	}

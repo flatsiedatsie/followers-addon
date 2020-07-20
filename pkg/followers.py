@@ -223,8 +223,8 @@ class FollowersAPIHandler(APIHandler):
                             else:
                                 #print("API GET was succesfull")
                                 original_value = api_get_result[key]
-                                if self.DEBUG:
-                                    print("got original value from API: " + str(original_value))
+                                #if self.DEBUG:
+                                #    print("got original value from API: " + str(original_value))
                             
                                 if min(float(item['limit1']), float(item['limit2'])) <= float(original_value) <= max(float(item['limit1']), float(item['limit2'])):
                                 #if original_value in range(float(item['limit1']), float(item['limit2'])):
@@ -379,8 +379,8 @@ class FollowersAPIHandler(APIHandler):
 
     def api_get(self, api_path):
         """Returns data from the WebThings Gateway API."""
-        if self.DEBUG:
-            print("GET PATH = " + str(api_path))
+        #if self.DEBUG:
+        #    print("GET PATH = " + str(api_path))
         #print("GET TOKEN = " + str(self.token))
         if self.token == None:
             print("PLEASE ENTER YOUR AUTHORIZATION CODE IN THE SETTINGS PAGE")
@@ -399,9 +399,11 @@ class FollowersAPIHandler(APIHandler):
             if r.status_code != 200:
                 if self.DEBUG:
                     print("API returned a status code that was not 200. It was: " + str(r.status_code))
-                return {"error": str(r.status_code)}
+                return {"error": r.status_code}
                 
             else:
+                if self.DEBUG:
+                    print("API get succesfull: " + str(r.text))
                 return json.loads(r.text)
             
         except Exception as ex:
