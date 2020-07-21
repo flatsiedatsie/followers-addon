@@ -455,7 +455,7 @@ class FollowersAPIHandler(APIHandler):
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
                   'Authorization': 'Bearer ' + str(self.token),
-                }, verify=False, timeout=2)
+                }, verify=False, timeout=3)
             #if self.DEBUG:
             #    print("API GET: " + str(r.status_code) + ", " + str(r.reason))
 
@@ -495,7 +495,7 @@ class FollowersAPIHandler(APIHandler):
                 json=json_dict,
                 headers=headers,
                 verify=False,
-                timeout=2
+                timeout=3
             )
             #if self.DEBUG:
             #print("API PUT: " + str(r.status_code) + ", " + str(r.reason))
