@@ -24,7 +24,7 @@
 
     show() {
 		this.view.innerHTML = this.content;
-	  	console.log("followers show called");
+	  	//console.log("followers show called");
 
 		const pre = document.getElementById('extension-followers-response-data');
 		//const original = document.getElementById('extension-followers-original-item');
@@ -37,8 +37,8 @@
 		
 	  	// Click event for ADD button
 		document.getElementById("extension-followers-add-button").addEventListener('click', () => {
-			console.log("clicked on add follower button");
-			console.log(this);
+			//console.log("clicked on add follower button");
+			//console.log(this);
 			
 			var clone = document.getElementById('extension-followers-original-item').cloneNode(true);
 			clone.removeAttribute('id');
@@ -61,12 +61,7 @@
 				event['path'][3].classList.remove("delete");
 			});
 			
-			
-			
-			
-			
 			document.getElementById('extension-followers-list').append(clone);
-			console.log("cloned?");
 	  	});
 		
 
@@ -116,9 +111,9 @@
 	          `/extensions/${this.id}/api/init`
 
 	        ).then((body) => {
-				console.log("Python API result:");
-				console.log(body);
-				console.log(body['items']);
+				//console.log("Python API result:");
+				//console.log(body);
+				//console.log(body['items']);
 				if(body['state'] == 'ok'){
 					this.regenerate_items(body['items']);
 				}
@@ -129,7 +124,7 @@
 
 	        }).catch((e) => {
 	          	//pre.innerText = e.toString();
-	  			console.log("followers: error in calling init via API handler");
+	  			//console.log("followers: error in calling init via API handler");
 	  			console.log(e.toString());
 				pre.innerText = "Loading items failed - connection error";
 	        });				
@@ -145,9 +140,9 @@
 	//
 	
 	regenerate_items(items){
-		console.log("regenerating");
-		console.log("this.all_things = ");
-		console.log(this.all_things);
+		//console.log("regenerating");
+		//console.log("this.all_things = ");
+		//console.log(this.all_things);
 		
 		//const leader_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		//const follower_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
@@ -166,18 +161,29 @@
 				// Add delete button click event
 				const delete_button = clone.querySelectorAll('.extension-followers-item-delete-button')[0];
 				delete_button.addEventListener('click', (event) => {
-					event['path'][3].classList.add("delete");
+					var target = event.currentTarget;
+					var parent3 = target.parentElement.parentElement.parentElement; //parent of "target"
+					parent3.classList.add("delete");
 			  	});
 			
 				const final_delete_button = clone.querySelectorAll('.rule-delete-confirm-button')[0];
 				final_delete_button.addEventListener('click', (event) => {
-					event['path'][4].removeChild(event['path'][3]);
-					event['path'][4].dispatchEvent( new CustomEvent('change',{bubbles:true}) );
+					var target = event.currentTarget;
+					var parent3 = target.parentElement.parentElement.parentElement; //parent of "target"
+					var parent4 = parent3.parentElement;
+					parent4.removeChild(parent3);
+					parent4.dispatchEvent( new CustomEvent('change',{bubbles:true}) );
 				});
+				
+				
+				
 			
 				const cancel_delete_button = clone.querySelectorAll('.rule-delete-cancel-button')[0];
 				cancel_delete_button.addEventListener('click', (event) => {
-					event['path'][3].classList.remove("delete");
+					var target = event.currentTarget;
+					var parent3 = target.parentElement.parentElement.parentElement;
+					parent3.classList.remove("delete");
+					
 				});
 				
 				// Change switch icon
@@ -198,8 +204,8 @@
 							//console.log("bingo, at thing1. Now to grab properties.");
 							const property1_dropdown = clone.querySelectorAll('.extension-followers-property1')[0];
 							const property_lists = this.get_property_lists(this.all_things[thing]['properties']);
-							console.log("property lists:");
-							console.log(property_lists);
+							//console.log("property lists:");
+							//console.log(property_lists);
 							
 							for( var title in property_lists['property1_list'] ){
 								//console.log("adding prop title:" + property_lists['property1_list'][title]);
@@ -337,8 +343,8 @@
 					
 				});
 				
-				console.log("updated_values:");
-				console.log(updated_values);
+				//console.log("updated_values:");
+				//console.log(updated_values);
 				
 				
 				// Send new values to backend
@@ -348,7 +354,7 @@
 					{'items':updated_values}
 				).then((body) => { 
 					//thing_list.innerText = body['state'];
-					console.log(body); 
+					//console.log(body); 
 					if( body['state'] != 'ok' ){
 						pre.innerText = body['state'];
 					}
