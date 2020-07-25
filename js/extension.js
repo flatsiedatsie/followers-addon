@@ -83,11 +83,13 @@
 				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
 
-				var thing_title = 'unknown'
-				if 'title' in things[key]:
-					title = things[key]['title'];
-				else if 'label' in things[key]:
-					title = things[key]['label']
+				var thing_title = 'unknown';
+				if( things[key].hasOwnProperty('title') ){
+					thing_title = things[key]['title'];
+				}
+				else if( things[key].hasOwnProperty('label') ){
+					thing_title = things[key]['label'];
+				}
 				
 				//thing_titles.push( things[key]['title'] );
 				
@@ -396,11 +398,14 @@
 		
 		for (let prop in properties){
 			//console.log(properties[prop]);
-			var title = 'unknown'
-			if 'title' in properties[prop]:
+			var title = 'unknown';
+			if( properties[prop].hasOwnProperty('title') ){
 				title = properties[prop]['title'];
-			else if 'label' in properties[prop]:
-				title = properties[prop]['label']
+			}
+			else if( properties[prop].hasOwnProperty('label') ){
+				title = properties[prop]['label'];
+			}
+				
 			
 			var system_title = properties[prop]['links'][0]['href'].substr(properties[prop]['links'][0]['href'].lastIndexOf('/') + 1);
 
