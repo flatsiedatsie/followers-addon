@@ -82,7 +82,13 @@
 				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
 				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
-				var thing_title = things[key]['title']
+
+				var thing_title = 'unknown'
+				if 'title' in things[key]:
+					title = things[key]['title'];
+				else if 'label' in things[key]:
+					title = things[key]['label']
+				
 				//thing_titles.push( things[key]['title'] );
 				
 				// todo: sort alphabetically
@@ -390,7 +396,7 @@
 		
 		for (let prop in properties){
 			//console.log(properties[prop]);
-			var title = 'unkown'
+			var title = 'unknown'
 			if 'title' in properties[prop]:
 				title = properties[prop]['title'];
 			else if 'label' in properties[prop]:
