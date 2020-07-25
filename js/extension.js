@@ -390,7 +390,12 @@
 		
 		for (let prop in properties){
 			//console.log(properties[prop]);
-			var title = properties[prop]['title'];
+			var title = 'unkown'
+			if 'title' in properties[prop]:
+				title = properties[prop]['title'];
+			else if 'label' in properties[prop]:
+				title = properties[prop]['label']
+			
 			var system_title = properties[prop]['links'][0]['href'].substr(properties[prop]['links'][0]['href'].lastIndexOf('/') + 1);
 
 			// If a property is a number, add it to the list of possible source properties
