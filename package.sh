@@ -1,21 +1,32 @@
-#!/bin/bash
+#!/bin/bash -e
 
-version=$(grep '"version":' manifest.json | cut -d: -f2 | cut -d\" -f2)
+version=$(grep '"version"' manifest.json | cut -d: -f2 | cut -d\" -f2)
 
-rm -rf SHA256SUMS package
-rm -rf ._*
+# Clean up from previous releases
+rm -rf *.tgz package SHA256SUMS
+
+# Prep new package
 mkdir package
 
+# Put package together
 cp -r pkg LICENSE manifest.json *.py README.md css images js views package/
 find package -type f -name '*.pyc' -delete
 find package -type f -name '._*' -delete
 find package -type d -empty -delete
-sudo rm -rf /home/pi/.mozilla-iot/addons/followers/package/pkg/pycache
-#cp -r pkg css images js views package/
+rm -rf package/pkg/pycache
 
+# Generate checksums
+echo "generating checksums"
 cd package
-find . -type f \! -name SHA256SUMS -exec sha256sum {} \; >> SHA256SUMS
-cd ..
+find . -type f \! -name SHA256SUMS -exec shasum --algorithm 256 {} \; >> SHA256SUMS
+cd -
 
-tar czf "followers-${version}.tgz" package
-sha256sum "followers-${version}.tgz"
+# Make the tarball
+echo "creating archive"
+TARFILE="followers-${version}.tgz"
+tar czf ${TARFILE} package
+
+shasum --algorithm 256 ${TARFILE} > ${TARFILE}.sha256sum
+cat ${TARFILE}.sha256sum
+
+rm -rf SHA256SUMS package
