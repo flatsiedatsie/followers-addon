@@ -248,7 +248,8 @@ class FollowersAPIHandler(APIHandler):
                                             if str(item['property2_type']) == 'integer':
                                                 numeric_value = round(numeric_value)
                                         else:
-                                            print("property2_type was not in item")
+                                            if self.DEBUG:
+                                                print("property2_type was not in item")
                                     except Exception as ex:
                                         print("Error turning into int: " + str(ex))
                                         continue
