@@ -9,6 +9,7 @@
 		
 		this.item_elements = ['limit1','limit2','thing1','property1','limit3','limit4','thing2','property2'];
 		this.all_things;
+		this.items_list = [];
 		
 		this.item_number = 0;
 
@@ -40,6 +41,7 @@
 			//console.log("clicked on add follower button");
 			//console.log(this);
 			
+			/*
 			var clone = document.getElementById('extension-followers-original-item').cloneNode(true);
 			clone.removeAttribute('id');
 			clone.classList.add("new");
@@ -62,6 +64,9 @@
 			});
 			
 			document.getElementById('extension-followers-list').append(clone);
+			*/
+			this.items_list.push({'enabled': false});
+			this.regenerate_items(this.items_list);
 	  	});
 		
 
@@ -119,10 +124,11 @@
 	          `/extensions/${this.id}/api/init`
 
 	        ).then((body) => {
-				//console.log("Python API result:");
+				//console.log("Python API result:"); 
 				//console.log(body);
 				//console.log(body['items']);
 				if(body['state'] == 'ok'){
+					this.items_list = body['items']
 					this.regenerate_items(body['items']);
 				}
 				else{

@@ -334,7 +334,7 @@ class FollowersAPIHandler(APIHandler):
                             self.persistent_data['items'] = request.body['items']
                             
                             
-                            print("")
+                            #print("")
                             # Get all the things via the API.
                             try:
                                 self.things = self.api_get("/things")
@@ -345,7 +345,7 @@ class FollowersAPIHandler(APIHandler):
                             # try to get the correct property type (integer/float)
                             try:
                                 for item in self.persistent_data['items']:
-                                    print("_item: " + str(item))
+                                    #print("_item: " + str(item))
                                     if 'thing2' in item and 'property2' in item:
                                         for thing in self.things:
                                             thing_id = str(thing['id'].rsplit('/', 1)[-1])
@@ -358,8 +358,8 @@ class FollowersAPIHandler(APIHandler):
                                                     property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
                                                     #print("property_id = " + str(property_id))
                                                     if str(item['property2']) == property_id:
-                                                        print("bingo for property: " + str(property_id))
-                                                        print("___type: " + str(thing['properties'][thing_property_key]['type']))
+                                                        #print("bingo for property: " + str(property_id))
+                                                        #print("___type: " + str(thing['properties'][thing_property_key]['type']))
 
                                                         #self.persistent_data['items'][item]['property2_type'] = str(thing['properties'][thing_property_key]['type'])
                                                         item['property2_type'] = str(thing['properties'][thing_property_key]['type'])
@@ -423,7 +423,7 @@ class FollowersAPIHandler(APIHandler):
 
     def cancel_pairing(self):
         """Cancel the pairing process."""
-        print("END OF PAIRING -----------------------------")
+        #print("END OF PAIRING -----------------------------")
 
         # Get all the things via the API.
         try:
@@ -446,7 +446,6 @@ class FollowersAPIHandler(APIHandler):
         #print("GET TOKEN = " + str(self.token))
         if self.token == None:
             print("PLEASE ENTER YOUR AUTHORIZATION CODE IN THE SETTINGS PAGE")
-            self.set_status_on_thing("Authorization code missing, check settings")
             return []
         
         try:
@@ -522,7 +521,7 @@ class FollowersAPIHandler(APIHandler):
 
     def save_persistent_data(self):
         #if self.DEBUG:
-        print("Saving to persistence data store at path: " + str(self.persistence_file_path))
+        #print("Saving to persistence data store at path: " + str(self.persistence_file_path))
             
         try:
             if not os.path.isfile(self.persistence_file_path):
