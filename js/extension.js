@@ -83,10 +83,6 @@
 			var thing_titles = [];
 			
 			for (let key in things){
-				
-				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
-				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
-				
 
 				var thing_title = 'unknown';
 				if( things[key].hasOwnProperty('title') ){
@@ -96,15 +92,29 @@
 					thing_title = things[key]['label'];
 				}
 				
-				//thing_titles.push( things[key]['title'] );
+				console.log(thing_title);
+				try{
+					if (thing_title.startsWith('highlights-') ){
+						// Skip highlight items
+						continue;
+					}
+					
+				}
+				catch(e){console.log("error in creating list of things for highlights: " + e);}
+			
+				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
+				try{
+					if (thing_id.startsWith('highlights-') ){
+						// Skip items that are already highlight clones themselves.
+						console.log(thing_id + " starts with highlight-, so skipping.");
+						continue;
+					}
+					
+				}
+				catch(e){console.log("error in creating list of things for highlights: " + e);}
+				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
-				// todo: sort alphabetically
-			//}
-			//thing_ids.sort();
-			//thing_titles.sort();
-			//for (let key in things){
-				
-				
+
 				// for each thing, get its property list. Only add it to the selectable list if it has properties that are numbers. 
 				// In case of the second thing, also make sure there is at least one non-read-only property.
 				const property_lists = this.get_property_lists(things[key]['properties']);
@@ -165,7 +175,7 @@
 		
 			const original = document.getElementById('extension-followers-original-item');
 			const list = document.getElementById('extension-followers-list');
-		
+			list.innerHTML = "";
 		
 			// Loop over all items
 			for( var item in items ){
@@ -283,10 +293,16 @@
 						if( this.all_things[thing]['id'].endsWith( event['target'].value ) ){
 							const property_dropdown = event['target'].nextSibling;
 							const property_lists = this.get_property_lists(this.all_things[thing]['properties']);
-							var select_length = property_dropdown.options.length;
-							for (var i = select_length-1; i >= 0; i--) {
-								property_dropdown.options[i] = null;
+							try{
+								var select_length = property_dropdown.options.length;
+								for (var i = select_length-1; i >= 0; i--) {
+									property_dropdown.options[i] = null;
+								}
 							}
+							catch(e){
+								console.log("error clearing property dropdown select options: " + e);
+							}
+
 							
 							// If thing1 dropdown was changed, update its property titles
 							if( event['target'].classList.contains("extension-followers-thing1") ){
