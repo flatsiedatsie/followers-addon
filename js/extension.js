@@ -92,7 +92,7 @@
 					thing_title = things[key]['label'];
 				}
 				
-				console.log(thing_title);
+				//console.log(thing_title);
 				try{
 					if (thing_title.startsWith('highlights-') ){
 						// Skip highlight items
@@ -106,7 +106,7 @@
 				try{
 					if (thing_id.startsWith('highlights-') ){
 						// Skip items that are already highlight clones themselves.
-						console.log(thing_id + " starts with highlight-, so skipping.");
+						//console.log(thing_id + " starts with highlight-, so skipping.");
 						continue;
 					}
 					
