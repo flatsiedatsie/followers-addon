@@ -66,7 +66,7 @@
 			document.getElementById('extension-followers-list').append(clone);
 			*/
 			this.items_list.push({'enabled': false});
-			this.regenerate_items(this.items_list);
+			this.regenerate_items();
 	  	});
 		
 
@@ -139,7 +139,7 @@
 				//console.log(body['items']);
 				if(body['state'] == 'ok'){
 					this.items_list = body['items']
-					this.regenerate_items(body['items']);
+					this.regenerate_items();
 				}
 				else{
 					pre.innerText = body['state'];
@@ -172,6 +172,7 @@
 		//const follower_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		
 		try {
+			items = this.items_list
 		
 			const original = document.getElementById('extension-followers-original-item');
 			const list = document.getElementById('extension-followers-list');
@@ -377,8 +378,10 @@
 				//console.log(updated_values);
 				
 				
-				// Send new values to backend
+				// Store the updated list
+				this.items_list = updated_values;
 				
+				// Send new values to backend
 				window.API.postJson(
 					`/extensions/${this.id}/api/update_items`,
 					{'items':updated_values}
