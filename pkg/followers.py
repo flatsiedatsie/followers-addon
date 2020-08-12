@@ -9,16 +9,10 @@ import requests
 import threading
 
 try:
-    from gateway_addon import APIHandler, APIResponse
+    from gateway_addon import APIHandler, APIResponse, Database
     #print("succesfully loaded APIHandler and APIResponse from gateway_addon")
 except:
     print("Import APIHandler and APIResponse from gateway_addon failed. Use at least WebThings Gateway version 0.10")
-    sys.exit(1)
-    
-try:
-    from gateway_addon import Database
-except:
-    print("Gateway not loaded?!")
     sys.exit(1)
 
 
@@ -154,8 +148,8 @@ class FollowersAPIHandler(APIHandler):
             config = database.load_config()
             database.close()
             
-        except:
-            print("Error! Failed to open settings database.")
+        except Exception as ex:
+            print("Error! Failed to open settings database: " + str(ex))
         
         if not config:
             print("Error loading config from database")
