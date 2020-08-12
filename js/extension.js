@@ -168,6 +168,7 @@
 		//console.log("this.all_things = ");
 		//console.log(this.all_things);
 		
+		const pre = document.getElementById('extension-followers-response-data');
 		//const leader_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		//const follower_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		
