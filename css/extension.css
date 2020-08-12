@@ -129,6 +129,10 @@
 	margin-bottom: 2rem;
 }
 
+#extension-followers-view .switch-slider{
+	cursor:pointer;
+}
+
 .extension-followers-item-sentence{
 	color:white;
 	font-size: 1.8rem;
