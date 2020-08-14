@@ -306,7 +306,7 @@ class FollowersAPIHandler(APIHandler):
         
                             # Check if a token is present
                             if self.token == None:
-                                state = 'Error: missing API token. Please add one in settings.'
+                                state = 'This addon requires an authorization token to work. Visit the settings page of this addon to learn more.'
 
 
                             return APIResponse(

@@ -28,9 +28,9 @@
 	  	//console.log("followers show called");
 
 		const pre = document.getElementById('extension-followers-response-data');
+		const view = document.getElementById('extension-followers-view'); 
 		//const original = document.getElementById('extension-followers-original-item');
 		//const list = document.getElementById('extension-followers-list');
-		
 		const leader_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing1')[0];
 		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
 	
@@ -38,35 +38,9 @@
 		
 	  	// Click event for ADD button
 		document.getElementById("extension-followers-add-button").addEventListener('click', () => {
-			//console.log("clicked on add follower button");
-			//console.log(this);
-			
-			/*
-			var clone = document.getElementById('extension-followers-original-item').cloneNode(true);
-			clone.removeAttribute('id');
-			clone.classList.add("new");
-			
-			// When adding a new item, prepare its delete button
-			const delete_button = clone.querySelectorAll('.extension-followers-item-delete-button')[0];
-			delete_button.addEventListener('click', (event) => {
-				event['path'][3].classList.add("delete");
-		  	});
-			
-			const final_delete_button = clone.querySelectorAll('.rule-delete-confirm-button')[0];
-			final_delete_button.addEventListener('click', (event) => {
-				event['path'][4].removeChild(event['path'][3]);
-				event['path'][4].dispatchEvent( new CustomEvent('change',{bubbles:true}) );
-			});
-			
-			const cancel_delete_button = clone.querySelectorAll('.rule-delete-cancel-button')[0];
-			cancel_delete_button.addEventListener('click', (event) => {
-				event['path'][3].classList.remove("delete");
-			});
-			
-			document.getElementById('extension-followers-list').append(clone);
-			*/
 			this.items_list.push({'enabled': false});
 			this.regenerate_items();
+			view.scrollTop = view.scrollHeight;
 	  	});
 		
 
@@ -296,9 +270,13 @@
 							const property_dropdown = event['target'].nextSibling;
 							const property_lists = this.get_property_lists(this.all_things[thing]['properties']);
 							try{
-								var select_length = property_dropdown.options.length;
-								for (var i = select_length-1; i >= 0; i--) {
-									property_dropdown.options[i] = null;
+								if(property_dropdown !== undefined){
+									if('options' in property_dropdown){
+										var select_length = property_dropdown.options.length;
+										for (var i = select_length-1; i >= 0; i--) {
+											property_dropdown.options[i] = null;
+										}
+									}
 								}
 							}
 							catch(e){
