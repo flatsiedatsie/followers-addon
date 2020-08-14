@@ -29,7 +29,6 @@ class FollowersAPIHandler(APIHandler):
         self.running = True
 
         self.server = 'http://127.0.0.1:8080'
-        self.DEV = True
         self.DEBUG = False
             
         self.things = [] # Holds all the things, updated via the API. Used to display a nicer thing name instead of the technical internal ID.
@@ -43,7 +42,7 @@ class FollowersAPIHandler(APIHandler):
         except Exception as ex:
             print("Error loading config: " + str(ex))
         
-        self.DEBUG = True
+        #self.DEBUG = True
         
         
         
@@ -81,10 +80,10 @@ class FollowersAPIHandler(APIHandler):
         
         
         # Is there user profile data?    
-        try:
-            print(str(self.user_profile))
-        except:
-            print("no user profile data")
+        #try:
+        #    print(str(self.user_profile))
+        #except:
+        #    print("no user profile data")
                 
 
             
@@ -127,9 +126,10 @@ class FollowersAPIHandler(APIHandler):
         # Start the internal clock
         print("Starting the internal clock")
         try:            
-            t = threading.Thread(target=self.clock)
-            t.daemon = True
-            t.start()
+            if self.token != None:
+                t = threading.Thread(target=self.clock)
+                t.daemon = True
+                t.start()
         except:
             print("Error starting the clock thread")
 
@@ -188,8 +188,12 @@ class FollowersAPIHandler(APIHandler):
         while self.running:
             time.sleep(1)
             #print("waking")
+            #print("items: " + str(self.persistent_data['items']))
             try:
-                for item in self.persistent_data['items']:
+                #for item in self.persistent_data['items']:
+                for index, item in enumerate(self.persistent_data['items']):
+                    #print(str(index))
+                
                     if 'thing1' in item and 'thing2' in item and 'property1' in item and 'property2' in item and 'limit1' in item and 'limit2' in item and 'limit3' in item and 'limit4' in item and 'enabled' in item:
                         #print("all variables are there")
                         #print(str( bool(item['enabled']) ))
@@ -211,9 +215,11 @@ class FollowersAPIHandler(APIHandler):
                         try:
                             if key == "error": 
                                 if api_get_result[key] == 500:
-                                    pass
+                                    
                                     #return
                                     #print("API GET failed")
+
+                                    continue
 
                             else:
                                 #print("API GET was succesfull")
@@ -271,6 +277,15 @@ class FollowersAPIHandler(APIHandler):
                                         
                         except Exception as ex:
                             print("Error putting via API: " + str(ex))
+
+                    elif 'enabled' in item: # this might be superfluous
+                        if item['enabled']:
+                            # the device should not be enabled, it's incomplete.
+                            self.persistent_data['items'][index]['enabled'] = False
+                            self.save_persistent_data()
+                            if self.DEBUG:
+                                print("Set an incomplete enabled item to disabled")
+                    
 
             except Exception as ex:
                 print("Clock error: " + str(ex))              
@@ -371,7 +386,8 @@ class FollowersAPIHandler(APIHandler):
                                 content=json.dumps({'state' : 'ok'}),
                             )
                         except Exception as ex:
-                            print("Error saving updated items: " + str(ex))
+                            if self.DEBUG:
+                                print("Error saving updated items: " + str(ex))
                             return APIResponse(
                                 status=500,
                                 content_type='application/json',
@@ -388,7 +404,8 @@ class FollowersAPIHandler(APIHandler):
                         
                         
                 except Exception as ex:
-                    print(str(ex))
+                    if self.DEBUG:
+                        print("Error while handling request: " + str(ex))
                     return APIResponse(
                         status=500,
                         content_type='application/json',
@@ -399,7 +416,8 @@ class FollowersAPIHandler(APIHandler):
                 return APIResponse(status=404)
                 
         except Exception as e:
-            print("Failed to handle UX extension API request: " + str(e))
+            if self.DEBUG:
+                print("Failed to handle UX extension API request: " + str(e))
             return APIResponse(
                 status=500,
                 content_type='application/json',
@@ -440,7 +458,7 @@ class FollowersAPIHandler(APIHandler):
         #print("GET TOKEN = " + str(self.token))
         if self.token == None:
             print("PLEASE ENTER YOUR AUTHORIZATION CODE IN THE SETTINGS PAGE")
-            return []
+            return {"error": 500}
         
         try:
             r = requests.get(self.server + api_path, headers={
@@ -462,7 +480,8 @@ class FollowersAPIHandler(APIHandler):
                 return json.loads(r.text)
             
         except Exception as ex:
-            print("Error doing " + str(api_path) + " request/loading returned json: " + str(ex))
+            if self.DEBUG:
+                print("Error doing " + str(api_path) + " request/loading returned json: " + str(ex))
             #return [] # or should this be {} ? Depends on the call perhaps.
             return {"error": 500}
 
@@ -502,7 +521,8 @@ class FollowersAPIHandler(APIHandler):
                 return json.loads(r.text)
 
         except Exception as ex:
-            print("Error doing http request/loading returned json: " + str(ex))
+            if self.DEBUG:
+                print("Error doing http request/loading returned json: " + str(ex))
             #return {"error": "I could not connect to the web things gateway"}
             #return [] # or should this be {} ? Depends on the call perhaps.
             return {"error": 500}
