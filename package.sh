@@ -6,7 +6,10 @@ version=$(grep '"version"' manifest.json | cut -d: -f2 | cut -d\" -f2)
 rm -rf *.tgz package SHA256SUMS
 
 # Prep new package
-mkdir package
+mkdir dir package
+
+# Pull down Python dependencies
+pip3 install -r requirements.txt -t lib --no-binary :all: --prefix ""
 
 # Put package together
 cp -r pkg LICENSE manifest.json *.py README.md css images js views package/
