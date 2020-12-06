@@ -59,6 +59,14 @@ class FollowersAPIHandler(APIHandler):
         #self.DEBUG = True
         
         
+        # temporary moving of persistence files   
+        old_location = os.path.join(os.path.expanduser('~'), '.mozilla-iot', 'data', self.addon_name,'persistence.json')
+        new_location = os.path.join(os.path.expanduser('~'), '.webthings', 'data', self.addon_name,'persistence.json')
+        
+        if os.path.isfile(old_location) and not os.path.isfile(new_location):
+            print("moving persistence file to new location: " + str(new_location))
+            os.rename(old_location, new_location)
+            
         
         # Paths
         # Get persistent data
