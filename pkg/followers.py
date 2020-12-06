@@ -1,8 +1,11 @@
 """Followers API handler."""
 
 
-import json
 import os
+import sys
+from os import path
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib'))
+import json
 import time
 from time import sleep
 import requests
@@ -14,6 +17,17 @@ try:
 except:
     print("Import APIHandler and APIResponse from gateway_addon failed. Use at least WebThings Gateway version 0.10")
     sys.exit(1)
+
+
+_TIMEOUT = 3
+
+_CONFIG_PATHS = [
+    os.path.join(os.path.expanduser('~'), '.webthings', 'config'),
+]
+
+if 'WEBTHINGS_HOME' in os.environ:
+    _CONFIG_PATHS.insert(0, os.path.join(os.environ['WEBTHINGS_HOME'], 'config'))
+
 
 
 
@@ -52,11 +66,13 @@ class FollowersAPIHandler(APIHandler):
             self.persistence_file_path = os.path.join(self.user_profile['dataDir'], self.addon_name, 'persistence.json')
         except:
             try:
-                print("setting persistence file path failed, will try older method.")
-                self.persistence_file_path = os.path.join(os.path.expanduser('~'), '.mozilla-iot', 'data', self.addon_name,'persistence.json')
+                if self.DEBUG:
+                    print("setting persistence file path failed, will try older method.")
+                self.persistence_file_path = os.path.join(os.path.expanduser('~'), '.webthings', 'data', self.addon_name,'persistence.json')
             except:
-                print("Double error making persistence file path")
-                self.persistence_file_path = "/home/pi/.mozilla/data/" + self.addon_name + "/persistence.json"
+                if self.DEBUG:
+                    print("Double error making persistence file path")
+                self.persistence_file_path = "/home/pi/.webthings/data/" + self.addon_name + "/persistence.json"
         
         if self.DEBUG:
             print("Current working directory: " + str(os.getcwd()))
@@ -74,7 +90,8 @@ class FollowersAPIHandler(APIHandler):
             print("Could not load persistent data (if you just installed the add-on then this is normal)")
             self.persistent_data = {'items':[]}
             
-        print("self.persistent_data is now: " + str(self.persistent_data))
+        if self.DEBUG:
+            print("self.persistent_data is now: " + str(self.persistent_data))
 
         
         
@@ -124,7 +141,8 @@ class FollowersAPIHandler(APIHandler):
         
 
         # Start the internal clock
-        print("Starting the internal clock")
+        if self.DEBUG:
+            print("Starting the internal clock")
         try:            
             if self.token != None:
                 t = threading.Thread(target=self.clock)
