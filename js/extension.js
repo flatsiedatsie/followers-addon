@@ -17,6 +17,7 @@
         .then((res) => res.text())
         .then((text) => {
          	this.content = text;
+			this.show()
         })
         .catch((e) => console.error('Failed to fetch content:', e));
     }
