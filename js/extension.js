@@ -17,7 +17,9 @@
         .then((res) => res.text())
         .then((text) => {
          	this.content = text;
-			this.show()
+			if( document.location.href.endsWith("followers") ){
+				this.show();
+			}
         })
         .catch((e) => console.error('Failed to fetch content:', e));
     }
