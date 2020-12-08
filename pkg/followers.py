@@ -3,7 +3,6 @@
 
 import os
 import sys
-from os import path
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib'))
 import json
 import time
@@ -17,6 +16,7 @@ try:
 except:
     print("Import APIHandler and APIResponse from gateway_addon failed. Use at least WebThings Gateway version 0.10")
     sys.exit(1)
+
 
 
 _TIMEOUT = 3
@@ -59,14 +59,17 @@ class FollowersAPIHandler(APIHandler):
         #self.DEBUG = True
         
         
-        # temporary moving of persistence files   
-        old_location = os.path.join(os.path.expanduser('~'), '.mozilla-iot', 'data', self.addon_name,'persistence.json')
-        new_location = os.path.join(os.path.expanduser('~'), '.webthings', 'data', self.addon_name,'persistence.json')
+        # Temporary moving of persistence files   
+        try:
+            old_location = os.path.join(os.path.expanduser('~'), '.mozilla-iot.old', 'data', self.addon_name,'persistence.json')
+            new_location = os.path.join(os.path.expanduser('~'), '.webthings', 'data', self.addon_name,'persistence.json')
         
-        if os.path.isfile(old_location) and not os.path.isfile(new_location):
-            print("moving persistence file to new location: " + str(new_location))
-            os.rename(old_location, new_location)
-            
+            if os.path.isfile(old_location) and not os.path.isfile(new_location):
+                print("moving persistence file to new location: " + str(new_location))
+                os.rename(old_location, new_location)
+        except Exception as ex:
+            print("Error copying old persistence file to new location: " + str(ex))
+        
         
         # Paths
         # Get persistent data
