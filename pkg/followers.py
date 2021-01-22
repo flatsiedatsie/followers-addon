@@ -75,6 +75,8 @@ class FollowersAPIHandler(APIHandler):
         # Get persistent data
         try:
             self.persistence_file_path = os.path.join(self.user_profile['dataDir'], self.addon_name, 'persistence.json')
+            if not os.path.isdir(self.persistence_file_path):
+                os.mkdir(self.persistence_file_path)
         except:
             try:
                 if self.DEBUG:
