@@ -50,6 +50,7 @@ class FollowersAPIHandler(APIHandler):
         self.token = None
         self.seconds_counter = 0
         self.error_counter = 0
+        self.there_are_missing_properties = False
         
         # LOAD CONFIG
         try:
@@ -107,17 +108,13 @@ class FollowersAPIHandler(APIHandler):
         if self.DEBUG:
             print("self.persistent_data is now: " + str(self.persistent_data))
 
-        
-        
-        
+
         # Is there user profile data?    
         #try:
         #    print(str(self.user_profile))
         #except:
         #    print("no user profile data")
-                
 
-            
             
         # Intiate extension addon API handler
         try:
@@ -142,29 +139,10 @@ class FollowersAPIHandler(APIHandler):
             print("Failed to init UX extension API handler: " + str(e))
 
         
-
-        # Respond to gateway version
-        
-        #try:
-        #    if self.DEBUG:
-        #        print(self.gateway_version)
-        #except:
-        #    print("self.gateway_version did not exist")
-            
-        #while(True):
-        #    sleep(1)
-        
         self.things = {}
         self.simple_things = {}
-        
-        try:
-            self.update_simple_things()
-            #self.things = self.api_get("/things")
-            #if self.DEBUG:
-            #    print("Did the initial things API call. self.things is now:")
-            #    print(str(self.things))
-        except Exception as ex:
-            print("Error getting updated things data via API: " + str(ex))
+
+        self.update_simple_things()
         
         
 
@@ -220,75 +198,6 @@ class FollowersAPIHandler(APIHandler):
 
 
 
-    def find_out_whats_wrong(self):
-        print("______")
-        print("in find_out_whats_wrong because a lot of errors were spotted")
-        try:
-            self.things = self.api_get("/things")
-            
-            for index, item in enumerate(self.persistent_data['items']):
-                print("wait, what is item here??")
-                print(str(item))
-                print("index = " + str(index))
-                print("item['enabled'] = " + str(item['enabled']))
-                if bool(item['enabled']) == True:
-                    print(str( self.persistent_data['items'][index] ))
-                    
-                    for i in range(1, 2):
-                    
-                        print("checking existence of thing" + str(i))
-                        try:
-                            print("checking thing" + str(i))
-                            api_get_result = self.api_get( '/things/' + str(item[ "thing" + str(i) ]) )
-                            print("thing test_result = " + str(api_get_result))
-                            key = list(api_get_result.keys())[0]
-                            if key == "error": 
-                                if api_get_result[key] == 500:
-                                    print(str(thing_number) + " doesn't seem to exist! Disabling this follower")
-                                    self.persistent_data['items'][index]['enabled'] = False
-                                    continue
-                            else:
-                                print("key was not error. It was: " + str(key))
-                                print("attempting to look for the property: " + str(item[ "property" + str(i)]) )
-                                property_name = str(item[ "property" + str(i)])
-                                if 'properties' in api_get_result:
-                                    print("api_get_result['properties'] = " + str(api_get_result['properties']))
-                                    if property_name in api_get_result['properties']:
-                                        print("property name spotted")
-                                        print(str( api_get_result['properties'][property_name] ))
-                                    else:
-                                        print("property name NOT (currently) spotted in this thing!")
-                                        if not 'missing_properties' in self.persistent_data['items'][index]:
-                                            self.persistent_data['items'][index]['missing_properties'] = []
-                                        if not property_name in self.persistent_data['items'][index]['missing_properties']:
-                                            self.persistent_data['items'][index]['missing_properties'].append(i)
-                                            print("self.persistent_data['items'][index]['missing_properties'] is now: " + str(self.persistent_data['items'][index]['missing_properties']))
-
-                                    
-                                    
-                                else:
-                                    print("no properties in api result?")
-                                
-                                
-                        
-                        except Exception as ex:
-                            if self.DEBUG:
-                                print("error even just doing the api call and parsing the returned json: " + str(ex))
-                            
-                            
-                    
-                else:
-                    print("skipping this one...")
-                    print("")
-                    
-                    
-                    
-        
-        except Exception as ex:
-            print("Error while finding out why there are so many errors: " + str(ex))
-        
-
-
 #
 #  CLOCK
 #
@@ -297,12 +206,9 @@ class FollowersAPIHandler(APIHandler):
         """ Runs every second """
         previous_action_times_count = 0
         #previous_injection_time = time.time()
-        there_are_missing_properties = False
+        
         while self.running:
             time.sleep(1)
-            
-                     
-            
             
             # Keeping an eye on any error that may develop if things disappear or properties don't (yet) exist
             try:
@@ -310,24 +216,24 @@ class FollowersAPIHandler(APIHandler):
                 self.seconds_counter += 1
                 if self.seconds_counter == 10:
                     self.seconds_counter = 0
-                    if there_are_missing_properties:
-                        self.update_simple_things()
+                    if self.there_are_missing_properties:
+                        self.update_simple_things() # perhaps they have appeared, so every 10 seconds there's a check
 
                 if self.error_counter != 0:
-                    print("self.error_counter = " + str(self.error_counter))
-                    print("self.error_counter % 9 = " + str(self.error_counter % 9))
+                    if self.DEBUG:
+                        print("self.error_counter = " + str(self.error_counter))
                 
                 if self.error_counter > 5:
                     self.error_counter = 0
-                    #self.find_out_whats_wrong()
                     self.update_simple_things()
                 
-                
             except Exception as ex:
-                print("Error while keeping an eye on errors")
+                if self.DEBUG:
+                    print("Error while keeping an eye on errors")
                     
             #print("items: " + str(self.persistent_data['items']))
             try:
+                self.there_are_missing_properties = False
                 for index, item in enumerate(self.persistent_data['items']):
                     #print(str(index))
                 
@@ -358,7 +264,7 @@ class FollowersAPIHandler(APIHandler):
                             continue
                         else:
                             if not str(item['property1']) in self.simple_things[ str(item['thing1']) ]:
-                                there_are_missing_properties = True
+                                self.there_are_missing_properties = True
                                 if self.DEBUG:
                                     print("Missing first property: " + str(item['property1']))
                                 continue
@@ -371,7 +277,7 @@ class FollowersAPIHandler(APIHandler):
                             continue
                         else:
                             if not str(item['property2']) in self.simple_things[ str(item['thing2']) ]:
-                                there_are_missing_properties = True
+                                self.there_are_missing_properties = True
                                 if self.DEBUG:
                                     print("Missing second property: " + str(item['property2']))
                                 continue
@@ -429,7 +335,8 @@ class FollowersAPIHandler(APIHandler):
                                             if self.DEBUG:
                                                 print("property2_type was not in item")
                                     except Exception as ex:
-                                        print("Error turning into int: " + str(ex))
+                                        if self.DEBUG:
+                                            print("Error turning into int: " + str(ex))
                                         continue
                                         
                                     if str(item['previous_value']) != str(numeric_value):
@@ -456,20 +363,16 @@ class FollowersAPIHandler(APIHandler):
                                                         
                                                 
                                             except Exception as ex:
-                                                print("Error while checking if PUT was succesful: " + str(ex))
+                                                if self.DEBUG:
+                                                    print("Error while checking if PUT was succesful: " + str(ex))
                                             
-                                            #print("api_put_result = " + str(api_put_result))
-
-                                            #if api_put_result[str(item['property2'])] == str(numeric_value):
-                                            #    print("API PUT was succesfull")
-                                            #else:
-                                            #    print("API PUT failed")
                                         except Exception as ex:
                                             print("Error late in putting via API: " + str(ex))
                                         
                                         
                         except Exception as ex:
-                            print("Error putting via API: " + str(ex))
+                            if self.DEBUG:
+                                print("Error putting via API: " + str(ex))
 
                     elif 'enabled' in item: # this might be superfluous
                         if item['enabled']:
@@ -481,7 +384,8 @@ class FollowersAPIHandler(APIHandler):
                     
 
             except Exception as ex:
-                print("Clock error: " + str(ex))              
+                if self.DEBUG:
+                    print("Clock error: " + str(ex))              
             
             if self.error_counter > 0:
                 self.error_counter -= 1 # if everything went ok, the error count will slowly drop down to 0 again, at which point extra api calls to check out what's wrong will no longer be needed.
