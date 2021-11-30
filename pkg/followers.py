@@ -284,6 +284,7 @@ class FollowersAPIHandler(APIHandler):
                                 
                         
                         api_get_result = self.api_get( '/things/' + str(item['thing1']) + '/properties/' + str(item['property1']))
+                        time.sleep(.1)
                         #print("detail: " + str(item['thing1']))
                         if self.DEBUG:
                             print("api_get_result = " + str(api_get_result))
