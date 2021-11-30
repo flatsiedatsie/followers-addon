@@ -27,6 +27,7 @@
 
 
     show() {
+        console.log(this.view);
 		this.view.innerHTML = this.content;
 	  	//console.log("followers show called");
 
@@ -36,8 +37,11 @@
 		//const list = document.getElementById('extension-followers-list');
 		const leader_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing1')[0];
 		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
-	
-		pre.innerText = "";
+	    
+        if(pre != null){
+            pre.innerText = "";
+        }
+		
 		
 	  	// Click event for ADD button
 		document.getElementById("extension-followers-add-button").addEventListener('click', () => {
@@ -396,15 +400,12 @@
 	//  A helper method that generates nice lists of properties from a Gateway property dictionary
 	//
 	get_property_lists(properties){
-		//console.log("checking properties on:");
-		//console.log(properties);
 		var property1_list = []; // list of user friendly titles
 		var property1_system_list = []; // list internal property id's
 		var property2_list = [];
 		var property2_system_list = [];
 		
 		for (let prop in properties){
-			//console.log(properties[prop]);
 			var title = 'unknown';
 			if( properties[prop].hasOwnProperty('title') ){
 				title = properties[prop]['title'];
@@ -412,10 +413,22 @@
 			else if( properties[prop].hasOwnProperty('label') ){
 				title = properties[prop]['label'];
 			}
-				
-			
-			var system_title = properties[prop]['links'][0]['href'].substr(properties[prop]['links'][0]['href'].lastIndexOf('/') + 1);
+		    
+            var system_title = null;
+            try{
+                if( typeof properties[prop]['forms'] != 'undefined'){
+                    system_title = properties[prop]['forms'][0]['href'].substr(properties[prop]['forms'][0]['href'].lastIndexOf('/') + 1);
+                }
+                else if( typeof properties[prop]['links'] != 'undefined'){
+                    system_title = properties[prop]['links'][0]['href'].substr(properties[prop]['links'][0]['href'].lastIndexOf('/') + 1);
+                }
 
+            }
+            catch(e){
+                console.log("forms/links error: " + e);
+            }
+            
+			
 			// If a property is a number, add it to the list of possible source properties
 			if( properties[prop]['type'] == 'integer' || properties[prop]['type'] == 'float' || properties[prop]['type'] == 'number'){
 				
