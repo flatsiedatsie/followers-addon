@@ -51,6 +51,7 @@ class FollowersAPIHandler(APIHandler):
         self.seconds_counter = 0
         self.error_counter = 0
         self.there_are_missing_properties = False
+        self.ignore_missing_properties = False
         
         # LOAD CONFIG
         try:
@@ -179,21 +180,30 @@ class FollowersAPIHandler(APIHandler):
             print("Error loading config from database")
             return
         
-        
+        # Debug
+        if 'Debugging' in config:
+            self.DEBUG = bool(config['Debugging'])
+            if self.DEBUG:
+                print("-Debugging preference was in config: " + str(self.DEBUG))
         
         # Api token
         try:
             if 'Authorization token' in config:
                 self.token = str(config['Authorization token'])
-                print("-Authorization token is present in the config data.")
+                if self.DEBUG:
+                    print("-Authorization token is present in the config data.")
         except:
             print("Error loading api token from settings")
         
-
-        if 'Debugging' in config:
-            self.DEBUG = bool(config['Debugging'])
+        
+        # Ignore missing properties?
+        if 'Ignore missing properties' in config:
+            self.ignore_missing_properties = bool(config['Ignore missing properties'])
             if self.DEBUG:
-                print("-Debugging preference was in config: " + str(self.DEBUG))
+                print("-Ignore missing properties preference was in config: " + str(self.ignore_missing_properties))
+        
+
+
 
 
 
@@ -216,7 +226,9 @@ class FollowersAPIHandler(APIHandler):
                 self.seconds_counter += 1
                 if self.seconds_counter == 10:
                     self.seconds_counter = 0
-                    if self.there_are_missing_properties:
+                    if self.there_are_missing_properties and self.ignore_missing_properties == False:
+                        if self.DEBUG:
+                            print("Missing properties were spotted, so updating simple_things dictionary")
                         self.update_simple_things() # perhaps they have appeared, so every 10 seconds there's a check
 
                 if self.error_counter != 0:
@@ -225,11 +237,15 @@ class FollowersAPIHandler(APIHandler):
                 
                 if self.error_counter > 5:
                     self.error_counter = 0
+                    if self.DEBUG:
+                        print("5 errors counted, so updating simple_thing dictionarys.")
+                    #if self.ignore_missing_properties == False:
                     self.update_simple_things()
                 
             except Exception as ex:
                 if self.DEBUG:
                     print("Error while keeping an eye on errors")
+                    
                     
             #print("items: " + str(self.persistent_data['items']))
             try:
@@ -254,8 +270,9 @@ class FollowersAPIHandler(APIHandler):
                                         
                         
                         # Make sure the things and property ID's exist (in theory...)
-                        # If things are missing, the followers get disabled. 
+                        # If things are missing, the followers can be disabled automatically. 
                         # If only properties are missing, we keep checking if they may appear
+                        
                         if not str(item['thing1']) in self.simple_things:
                             self.persistent_data['items'][index]['enabled'] = False
                             self.save_persistent_data()
@@ -268,12 +285,12 @@ class FollowersAPIHandler(APIHandler):
                                 if self.DEBUG:
                                     print("Missing first property: " + str(item['property1']))
                                 continue
-                        
+                    
                         if not str(item['thing2']) in self.simple_things:
                             self.persistent_data['items'][index]['enabled'] = False
                             self.save_persistent_data()
                             if self.DEBUG:
-                                print("Set a follower with a missing second thing to disabled")
+                                print("Setting a follower with a missing second thing to disabled")
                             continue
                         else:
                             if not str(item['property2']) in self.simple_things[ str(item['thing2']) ]:
@@ -286,9 +303,9 @@ class FollowersAPIHandler(APIHandler):
                         api_get_result = self.api_get( '/things/' + str(item['thing1']) + '/properties/' + str(item['property1']))
                         time.sleep(.1)
                         #print("detail: " + str(item['thing1']))
-                        if self.DEBUG:
-                            print("api_get_result = " + str(api_get_result))
                         try:
+                            if self.DEBUG:
+                                print("api_get_result = " + str(api_get_result))
                             key = list(api_get_result.keys())[0]
                         except Exception as ex:
                             if self.DEBUG:
@@ -303,8 +320,9 @@ class FollowersAPIHandler(APIHandler):
                                 if api_get_result[key] == 500:
                                     if self.DEBUG:
                                         print("API GET failed with a 500 server error. Skipping.")
-                                    self.error_counter += 2
-                                    continue
+                                    if self.ignore_missing_properties == False:
+                                        self.error_counter += 2
+                                        continue
 
                             else:
                                 #print("API GET was succesfull")
@@ -360,7 +378,8 @@ class FollowersAPIHandler(APIHandler):
                                                     if api_put_result[key] == 500:
                                                         if self.DEBUG:
                                                             print("API PUT failed with a 500 server error.")
-                                                        self.error_counter += 2
+                                                        if self.ignore_missing_properties == False:
+                                                            self.error_counter += 2
                                                         
                                                 
                                             except Exception as ex:
