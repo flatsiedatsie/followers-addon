@@ -6,6 +6,7 @@
       	this.addMenuEntry('Followers');
 
       	this.content = '';
+        this.debug = false;
 		
 		this.item_elements = ['limit1','limit2','thing1','property1','limit3','limit4','thing2','property2'];
 		this.all_things;
@@ -17,7 +18,8 @@
         .then((res) => res.text())
         .then((text) => {
          	this.content = text;
-			if( document.location.href.endsWith("followers") ){
+			if( document.location.href.endsWith("/extensions/followers") ){
+                console.log('followers: calling this.show from constructor init because at /followers url');
 				this.show();
 			}
         })
@@ -27,114 +29,157 @@
 
 
     show() {
-        console.log(this.view);
-		this.view.innerHTML = this.content;
-	  	//console.log("followers show called");
-
-		const pre = document.getElementById('extension-followers-response-data');
-		const view = document.getElementById('extension-followers-view'); 
-		//const original = document.getElementById('extension-followers-original-item');
-		//const list = document.getElementById('extension-followers-list');
-		const leader_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing1')[0];
-		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
-	    
-        if(pre != null){
-            pre.innerText = "";
+        console.log("followers show called");
+        if(this.content == ''){
+            console.log('show called, but content was still empty. Aborting.');
+            return;
         }
+        const view = document.getElementById('extension-followers-view'); 
+        //console.log("followers html: ", this.content);
+		this.view.innerHTML = this.content;
+	  	
+        setTimeout(() => {
+    		const pre = document.getElementById('extension-followers-response-data');
+		
+    		//const original = document.getElementById('extension-followers-original-item');
+    		//const list = document.getElementById('extension-followers-list');
+    		const leader_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing1')[0];
+    		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
+	    
+            if(leader_dropdown == null){
+                console.log("Something is wrong, leader_dropdown does not exist");
+            }
+            else{
+                console.log("leader dropdown existed");
+            }
+        
+            if(pre != null){
+                pre.innerText = "";
+            }
 		
 		
-	  	// Click event for ADD button
-		document.getElementById("extension-followers-add-button").addEventListener('click', () => {
-			this.items_list.push({'enabled': false});
-			this.regenerate_items();
-			view.scrollTop = view.scrollHeight;
-	  	});
+    	  	// Click event for ADD button
+            if(document.getElementById("extension-followers-add-button") != null){
+        		document.getElementById("extension-followers-add-button").addEventListener('click', () => {
+        			this.items_list.push({'enabled': false});
+        			this.regenerate_items();
+        			view.scrollTop = view.scrollHeight;
+        	  	});
+            }
+            else{
+                console.log('something is wrong, cannot find add button, followers HTML was not loaded?');
+            }
+
 		
 
-		// Pre populating the original item that will be clones to create new ones
-	    API.getThings().then((things) => {
+    		// Pre populating the original item that will be clones to create new ones
+    	    API.getThings().then((things) => {
 			
-			this.all_things = things;
-			//console.log("all things: ");
-			//console.log(things);
+    			this.all_things = things;
+    			console.log("all things: ");
+    			console.log(things);
 			
 			
-			// pre-populate the hidden 'new' item with all the thing names
-			var thing_ids = [];
-			var thing_titles = [];
+    			// pre-populate the hidden 'new' item with all the thing names
+    			var thing_ids = [];
+    			var thing_titles = [];
 			
-			for (let key in things){
+    			for (let key in things){
 
-				var thing_title = 'unknown';
-				if( things[key].hasOwnProperty('title') ){
-					thing_title = things[key]['title'];
-				}
-				else if( things[key].hasOwnProperty('label') ){
-					thing_title = things[key]['label'];
-				}
+    				var thing_title = 'unknown';
+    				if( things[key].hasOwnProperty('title') ){
+    					thing_title = things[key]['title'];
+    				}
+    				else if( things[key].hasOwnProperty('label') ){
+    					thing_title = things[key]['label'];
+    				}
 				
-				//console.log(thing_title);
-				try{
-					if (thing_title.startsWith('highlights-') ){
-						// Skip highlight items
-						continue;
-					}
+    				//console.log(thing_title);
+    				try{
+    					if (thing_title.startsWith('highlights-') ){
+    						// Skip highlight items
+    						continue;
+    					}
 					
-				}
-				catch(e){console.log("error in creating list of things for highlights: " + e);}
+    				}
+    				catch(e){console.log("error in creating list of things for highlights: " + e);}
 			
-				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
-				try{
-					if (thing_id.startsWith('highlights-') ){
-						// Skip items that are already highlight clones themselves.
-						//console.log(thing_id + " starts with highlight-, so skipping.");
-						continue;
-					}
+    				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
+    				try{
+    					if (thing_id.startsWith('highlights-') ){
+    						// Skip items that are already highlight clones themselves.
+    						//console.log(thing_id + " starts with highlight-, so skipping.");
+    						continue;
+    					}
 					
-				}
-				catch(e){console.log("error in creating list of things for highlights: " + e);}
-				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
+    				}
+    				catch(e){console.log("error in creating list of things for highlights: " + e);}
+    				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
 
-				// for each thing, get its property list. Only add it to the selectable list if it has properties that are numbers. 
-				// In case of the second thing, also make sure there is at least one non-read-only property.
-				const property_lists = this.get_property_lists(things[key]['properties']);
+    				// for each thing, get its property list. Only add it to the selectable list if it has properties that are numbers. 
+    				// In case of the second thing, also make sure there is at least one non-read-only property.
+    				const property_lists = this.get_property_lists(things[key]['properties']);
 				
-				if(property_lists['property1_list'].length > 0){
-					//console.log("adding thing to source list because a property has a number");
-					leader_dropdown.options[leader_dropdown.options.length] = new Option(thing_title, thing_id);
-					if(property_lists['property2_list'].length > 0){
-						//console.log("adding thing to target list because a property can be written");
-						follower_dropdown.options[follower_dropdown.options.length] = new Option(thing_title, thing_id);
-					}	
-				}
-			}
+    				if(property_lists['property1_list'].length > 0){
+    					//console.log("adding thing to source list because a property has a number");
+    					leader_dropdown.options[leader_dropdown.options.length] = new Option(thing_title, thing_id);
+    					if(property_lists['property2_list'].length > 0){
+    						//console.log("adding thing to target list because a property can be written");
+    						follower_dropdown.options[follower_dropdown.options.length] = new Option(thing_title, thing_id);
+    					}	
+    				}
+    			}
 			
-	  		// Get list of items
-	        window.API.postJson(
-	          `/extensions/${this.id}/api/init`
+    	  		// Get list of items
+    	        window.API.postJson(
+    	          `/extensions/${this.id}/api/init`
 
-	        ).then((body) => {
-				//console.log("Python API result:"); 
-				//console.log(body);
-				//console.log(body['items']);
-				if(body['state'] == 'ok'){
-					this.items_list = body['items']
-					this.regenerate_items();
-				}
-				else{
-					pre.innerText = body['state'];
-				}
+    	        ).then((body) => {
+    				console.log("Followers: init response:", body); 
+    				//console.log(body);
+    				//console.log(body['items']);
+                
+                    if(typeof body.debug != 'undefined'){
+                        this.debug = body.debug;
+                        if(body.debug){
+                            document.getElementById('extension-followers-debug-warning').style.display = 'block';
+                        }
+                    }
+                
+                    if(typeof body.ready != 'undefined'){
+                        if(body.ready){
+            				if(body['state'] == 'ok'){
+            					this.items_list = body['items']
+            					this.regenerate_items();
+            				}
+            				else{
+                                if(this.debug){
+                                    pre.innerText = body['state'];
+                                }
+            				}
+                        }
+                        else{
+                            document.getElementById('extension-followers-not-ready-warning').style.display = 'block';
+                        }
+                    }
+                
+                    if(typeof body.token != 'undefined'){
+                        if(!body.token){
+                            document.getElementById('extension-followers-missing-key-warning').style.display = 'block';
+                        }
+                    }
 				
 
-	        }).catch((e) => {
-	          	//pre.innerText = e.toString();
-	  			//console.log("followers: error in calling init via API handler");
-	  			console.log(e.toString());
-				pre.innerText = "Loading items failed - connection error";
-	        });				
+    	        }).catch((e) => {
+    	          	//pre.innerText = e.toString();
+    	  			//console.log("followers: error in calling init via API handler");
+    	  			console.log(e.toString());
+    				pre.innerText = "Loading items failed - connection error";
+    	        });				
 				
-	    });		
+    	    });	
+        }, 100);
 
 	}
 	
@@ -145,7 +190,7 @@
 	//
 	
 	regenerate_items(items){
-		//console.log("regenerating");
+		console.log("followers: regenerating");
 		//console.log("this.all_things = ");
 		//console.log(this.all_things);
 		
@@ -182,9 +227,6 @@
 					parent4.dispatchEvent( new CustomEvent('change',{bubbles:true}) );
 				});
 				
-				
-				
-			
 				const cancel_delete_button = clone.querySelectorAll('.rule-delete-cancel-button')[0];
 				cancel_delete_button.addEventListener('click', (event) => {
 					var target = event.currentTarget;
@@ -194,8 +236,8 @@
 				});
 				
 				// Change switch icon
-				clone.querySelectorAll('.switch-checkbox')[0].id = 'toggle' + this.item_number;
-				clone.querySelectorAll('.switch-slider')[0].htmlFor = 'toggle' + this.item_number;
+				clone.querySelectorAll('.switch-checkbox')[0].id = 'extension-followers-toggle' + this.item_number;
+				clone.querySelectorAll('.switch-slider')[0].htmlFor = 'extension-followers-toggle' + this.item_number;
 				this.item_number++;
 				
 				
@@ -264,8 +306,7 @@
 			//
 			
 			list.addEventListener('change', (event) => {
-				//console.log("changed");
-				//console.log(event);
+				console.log("followers: eventlistener: change detected: ", event);
 				
 				try {
 					
@@ -368,12 +409,13 @@
 				this.items_list = updated_values;
 				
 				// Send new values to backend
+                console.log("sending new item values to backend: ", updated_values);
 				window.API.postJson(
 					`/extensions/${this.id}/api/update_items`,
 					{'items':updated_values}
 				).then((body) => { 
 					//thing_list.innerText = body['state'];
-					//console.log(body); 
+					console.log(body); 
 					if( body['state'] != 'ok' ){
 						pre.innerText = body['state'];
 					}
@@ -413,16 +455,40 @@
 			else if( properties[prop].hasOwnProperty('label') ){
 				title = properties[prop]['label'];
 			}
-		    
+            //console.log(title);
+            
             var system_title = null;
             try{
+                var links_source = null;
                 if( typeof properties[prop]['forms'] != 'undefined'){
-                    system_title = properties[prop]['forms'][0]['href'].substr(properties[prop]['forms'][0]['href'].lastIndexOf('/') + 1);
+                    if(properties[prop]['forms'].length > 0){
+                        //console.log('valid href source in forms object');
+                        links_source = 'forms';
+                        //system_title = properties[prop]['forms'][0]['href'].substr(properties[prop]['forms'][0]['href'].lastIndexOf('/') + 1);
+                    }
+                    else{
+                        console.log("forms existed, but was empty");
+                    }
                 }
-                else if( typeof properties[prop]['links'] != 'undefined'){
-                    system_title = properties[prop]['links'][0]['href'].substr(properties[prop]['links'][0]['href'].lastIndexOf('/') + 1);
+                
+                if( links_source == null && typeof properties[prop]['links'] != 'undefined'){
+                    if(properties[prop]['links'].length > 0){
+                        //console.log('valid href source in links object');
+                        links_source = 'links';
+                    }
+                    else{
+                        console.log("links existed, but was empty");
+                    }
                 }
-
+                //console.log("final links_source: " + links_source);
+                
+                if(links_source != null){
+                    system_title = properties[prop][links_source][0]['href'].substr(properties[prop][links_source][0]['href'].lastIndexOf('/') + 1);
+                }else{
+                    console.log('Error, no valid links source found?');
+                }
+                
+                //console.log('final system_title: ' + system_title);
             }
             catch(e){
                 console.log("forms/links error: " + e);

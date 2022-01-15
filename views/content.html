@@ -2,9 +2,17 @@
   
     <div id="extension-followers-content-container">
         <h3 id="extension-followers-title"><span id="extension-followers-iconx"></span>Followers</h3>
-
+        <div id="extension-followers-not-ready-warning" style="display:none">
+            <h1>Not ready yet</h1>
+            <p>Followers wait 20 seconds before starting so that all other addons have had some time to generate all the required device information.</p>
+            <p>Please come back in 20 seconds.</p>
+        </div>
+        <div id="extension-followers-missing-key-warning" style="display:none">
+            <h1>Missing Authorizaton token</h1>
+            <p>To use followers you will have to provide it with an "local authorization token". Without this "password" the addon is not allowed to get values from your devices.</p>
+            <p>Go to <a href="/settings/developer">Settings -> Developer</a> and then Create Local Authorization. Generate a key there by clicking on Allow at the bottom of the page. Copy the token that's generated, and then visit the settings page for this addon. There you can paste in te code, and click Apply to save it.</p>
+        </div>
         <div id="extension-followers-list">
-        
         
         </div>
         
@@ -78,9 +86,19 @@
         <br/>
         <br/>
 
+        <div id="extension-followers-debug-warning" style="display: none;">
+            <h2>Debugging is enabled</h2>
+            <p>This addon is currently set to save detailed information about its operation in the internal logs. This may impact your privacy, as this also means that insights into your behaviour might be stored in those logs.</p>
+            <p>You can disable debugging mode by going to <span style="font-style:italic">Settings</span>, then <span style="font-style:italic">Addons</span>, and then clicking on the <span style="font-style:italic">Settings</span> button for the <span style="font-style:italic">Followers</span> addon. There you can uncheck the debugging option and click <span style="font-style:italic">Apply</span>.</p>
+        </div>
+        
+        <br/>
+        <br/>
+        
         <div id="extension-followers-response">
             <p id="extension-followers-response-data"></p>
         </div>
+        
         <br/>
 
     </div>
