@@ -140,9 +140,25 @@
 	font-size: 1.8rem;
 	border-right: 1px solid rgba(255,255,255,.3);
 	width:100%;
-	padding:2rem;
+	padding:0;
 	overflow: hidden;
 }
+
+.extension-followers-item-sentence > *{
+    padding-left:2rem!important;
+    padding-right:2rem!important;
+    box-sizing:border-box;
+}
+.extension-followers-item-sentence > *:first-of-type{
+    padding-top:2rem;
+}
+.extension-followers-item-sentence > *:last-of-type{
+    padding-bottom:2rem;
+    padding-top: 2rem;
+    margin-top: 1rem;
+    background-color: rgba(0,0,0,.1);
+}
+
 .extension-followers-item-right{
 	text-align:center;
 }

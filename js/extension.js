@@ -209,6 +209,7 @@
 			for( var item in items ){
 				var clone = original.cloneNode(true);
 				clone.removeAttribute('id');
+                console.log("followers item: ", item);
 
 				// Add delete button click event
 				const delete_button = clone.querySelectorAll('.extension-followers-item-delete-button')[0];
@@ -240,7 +241,18 @@
 				clone.querySelectorAll('.switch-slider')[0].htmlFor = 'extension-followers-toggle' + this.item_number;
 				this.item_number++;
 				
-				
+                
+				// Set speed
+                if(typeof items[item].speed != 'undefined'){
+                    console.log("setting speed:", 'extension-followers-speed' + this.item_number, items[item].speed);
+                    clone.querySelectorAll('.extension-followers-speed')[0].id = 'extension-followers-speed' + this.item_number;
+                    clone.querySelectorAll('.extension-followers-speed')[0].value = items[item].speed;
+                }
+                else{
+                    console.log("speed was not defined");
+                }
+                
+                
 			
 				// Populate the properties dropdown
 				try{
@@ -300,8 +312,8 @@
 			}
 			
 			
-
-			//
+            //
+			//  SET PROPERTIES FOR SELECTED THING
 			//  Change listener. Called if the user changes anything in the existing items in the list. Mainly used to update properties if a new thing is selected.
 			//
 			
@@ -396,6 +408,8 @@
 
 					// Check if this item is enabled
 					new_values['enabled'] = item.querySelectorAll('.extension-followers-enabled')[0].checked;
+                    
+                    new_values['speed'] = parseInt(item.querySelectorAll('.extension-followers-speed')[0].value);
 					
 					updated_values.push(new_values);
 					
