@@ -127,6 +127,10 @@
 	position: relative;
 }
 
+.extension-followers-leader{
+    display:inline-block;
+}
+
 .extension-followers-item-left{
 	margin-bottom: 2rem;
 }
