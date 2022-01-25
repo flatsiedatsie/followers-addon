@@ -893,11 +893,7 @@ class FollowersAPIHandler(APIHandler):
         #print("END OF PAIRING -----------------------------")
 
         # Get all the things via the API.
-        try:
-            self.things = self.api_get("/things")
-            #print("Did the things API call")
-        except Exception as ex:
-            print("Error, couldn't load things at init: " + str(ex))
+        self.update_simple_things()
 
 
 
