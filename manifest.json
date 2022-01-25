@@ -26,7 +26,7 @@
   "name": "Followers",
   "options": {
     "default": {
-      "Token": "",
+      "Authorization token": "",
 	  "Ignore missing properties": false,
       "Debugging": false
     },
@@ -37,7 +37,7 @@
           "type": "string"
         },
         "Ignore missing properties": {
-          "description": "It can happen that a follower rule no longer works because one of the properties isnot available (yet). By default a missing property will cause the follower rule to be disabled. If you want to ignore missing properties, check this box.",
+          "description": "It can happen that a follower rule no longer works because one of the properties is not available (yet). By default a missing property will cause the follower rule to be disabled. If you want to ignore missing properties, check this box.",
           "type": "boolean"
         },
         "Debugging": {
