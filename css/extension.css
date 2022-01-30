@@ -184,7 +184,8 @@
 	width: 8rem;
 	font-size: 1.8rem;
 	padding:.5rem 1rem;
-	margin: .5rem;
+	margin-bottom: .5rem;
+    margin-right:.5rem;
 	/*background-color: #4d8bb7;*/
     background-color:rgba(255,255,255,.2);
 	color:white;
@@ -221,7 +222,8 @@
 	padding:.5rem 1rem;
 	border-radius: 0.5rem;
 	box-sizing: border-box;
-	margin: 0 .5rem;
+	margin-bottom: .5rem;
+    margin-right:.5rem;
 	border: none;
 	/*background-color: #4d8bb7;*/
     background-color:rgba(0,0,0,.2);
