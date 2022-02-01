@@ -19,7 +19,7 @@
         .then((text) => {
          	this.content = text;
 			if( document.location.href.endsWith("/extensions/followers") ){
-                console.log('followers: calling this.show from constructor init because at /followers url');
+                //console.log('followers: calling this.show from constructor init because at /followers url');
 				this.show();
 			}
         })
@@ -31,7 +31,7 @@
     show() {
         console.log("followers show called");
         if(this.content == ''){
-            console.log('show called, but content was still empty. Aborting.');
+            //console.log('show called, but content was still empty. Aborting.');
             return;
         }
         const view = document.getElementById('extension-followers-view'); 
@@ -50,11 +50,11 @@
                 console.log("Something is wrong, leader_dropdown does not exist");
             }
             else{
-                console.log("leader dropdown existed");
+                //console.log("leader dropdown existed");
             }
         
             if(pre != null){
-                pre.innerText = "";
+                //pre.innerText = "";
             }
 		
 		
@@ -76,8 +76,8 @@
     	    API.getThings().then((things) => {
 			
     			this.all_things = things;
-    			console.log("all things: ");
-    			console.log(things);
+    			//console.log("all things: ");
+    			//console.log(things);
 			
 			
     			// pre-populate the hidden 'new' item with all the thing names
@@ -155,7 +155,7 @@
             				}
             				else{
                                 if(this.debug){
-                                    pre.innerText = body['state'];
+                                    //pre.innerText = body['state'];
                                 }
             				}
                         }
@@ -175,7 +175,7 @@
     	          	//pre.innerText = e.toString();
     	  			//console.log("followers: error in calling init via API handler");
     	  			console.log(e.toString());
-    				pre.innerText = "Loading items failed - connection error";
+    				//pre.innerText = "Loading items failed - connection error";
     	        });				
 				
     	    });	
@@ -190,7 +190,7 @@
 	//
 	
 	regenerate_items(items){
-		console.log("followers: regenerating");
+		//console.log("followers: regenerating");
 		//console.log("this.all_things = ");
 		//console.log(this.all_things);
 		
@@ -209,7 +209,7 @@
 			for( var item in items ){
 				var clone = original.cloneNode(true);
 				clone.removeAttribute('id');
-                console.log("followers item: ", item);
+                //console.log("followers item: ", item);
 
 				// Add delete button click event
 				const delete_button = clone.querySelectorAll('.extension-followers-item-delete-button')[0];
@@ -244,12 +244,12 @@
                 
 				// Set speed
                 if(typeof items[item].speed != 'undefined'){
-                    console.log("setting speed:", 'extension-followers-speed' + this.item_number, items[item].speed);
+                    //console.log("setting speed:", 'extension-followers-speed' + this.item_number, items[item].speed);
                     clone.querySelectorAll('.extension-followers-speed')[0].id = 'extension-followers-speed' + this.item_number;
                     clone.querySelectorAll('.extension-followers-speed')[0].value = items[item].speed;
                 }
                 else{
-                    console.log("speed was not defined");
+                    //console.log("speed was not defined");
                 }
                 
                 
@@ -318,7 +318,7 @@
 			//
 			
 			list.addEventListener('change', (event) => {
-				console.log("followers: eventlistener: change detected: ", event);
+				//console.log("followers: eventlistener: change detected: ", event);
 				
 				try {
 					
@@ -423,20 +423,20 @@
 				this.items_list = updated_values;
 				
 				// Send new values to backend
-                console.log("sending new item values to backend: ", updated_values);
+                //console.log("sending new item values to backend: ", updated_values);
 				window.API.postJson(
 					`/extensions/${this.id}/api/update_items`,
 					{'items':updated_values}
 				).then((body) => { 
 					//thing_list.innerText = body['state'];
-					console.log(body); 
+					//console.log(body); 
 					if( body['state'] != 'ok' ){
-						pre.innerText = body['state'];
+						//pre.innerText = body['state'];
 					}
 
 				}).catch((e) => {
 					console.log("followers: error in save items handler");
-					pre.innerText = e.toString();
+					//pre.innerText = e.toString();
 				});
 				
 			});
