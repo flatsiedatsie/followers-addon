@@ -129,6 +129,7 @@
 
 .extension-followers-leader{
     display:inline-block;
+    max-width:100%;
 }
 
 .extension-followers-item-left{
@@ -238,7 +239,7 @@
 	background-size: 1.25rem;
 	background-position: calc(100% - 1rem);
 	padding-right: 3.5rem;
-	
+	max-width:100%;
 	/*
 	box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
 	border-radius: .5em;
@@ -301,6 +302,21 @@
 .extension-followers-response-data{
 	text-align:center;
 }
+
+#extension-followers-view a{
+    color:white;
+}
+
+#extension-followers-not-ready-warning,
+#extension-followers-missing-key-warning{
+    margin:2rem auto;
+    padding:2rem;
+    max-width:80rem;
+    background-color:rgba(0,0,0,.2);
+    border-radius:.5rem;
+    border:2px solid orange;
+}
+
 
 #extension-followers-debug-warning{
     max-width:60rem;
