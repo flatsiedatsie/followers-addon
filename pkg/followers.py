@@ -991,7 +991,11 @@ class FollowersAPIHandler(APIHandler):
     def api_put(self, api_path, json_dict):
         """Sends data to the WebThings Gateway API."""
             
-
+        if self.DEBUG:
+            print("put url: " + str(self.api_server + api_path))
+            print("put token: " + str(self.token))
+            print("put json_dict: " + str(json_dict))
+        
         headers = {
             'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(self.token),
@@ -1005,7 +1009,9 @@ class FollowersAPIHandler(APIHandler):
                 timeout=3
             )
             #if self.DEBUG:
-            print("-----------------> API PUT: " + str(r)) #.status_code) + ", " + str(r.reason))
+            
+            if self.DEBUG:
+                print("-----------------> API PUT: " + str(r)) #.status_code) + ", " + str(r.reason))
 
             if r.status_code != 200:
                 if self.DEBUG:
