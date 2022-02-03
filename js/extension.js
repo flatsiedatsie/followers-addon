@@ -29,7 +29,7 @@
 
 
     show() {
-        //console.log("followers show called");
+        console.log("followers show called");
         if(this.content == ''){
             //console.log('show called, but content was still empty. Aborting.');
             return;
@@ -47,7 +47,7 @@
     		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
 	    
             if(leader_dropdown == null){
-                //console.log("Something is wrong, leader_dropdown does not exist");
+                console.log("Something is wrong, leader_dropdown does not exist");
             }
             else{
                 //console.log("leader dropdown existed");
@@ -67,7 +67,7 @@
         	  	});
             }
             else{
-                //console.log('something is wrong, cannot find add button, followers HTML was not loaded?');
+                console.log('followers: something is wrong, cannot find add button, followers HTML was not loaded?');
             }
 
 		
@@ -76,7 +76,7 @@
     	    API.getThings().then((things) => {
 			
     			this.all_things = things;
-    			//console.log("all things: ");
+    			//console.log("followers: all things: ", things);
     			//console.log(things);
 			
 			
@@ -102,7 +102,9 @@
     					}
 					
     				}
-    				catch(e){//console.log("error in creating list of things for highlights: " + e);}
+    				catch(e){
+                        //console.log("error in creating list of things for highlights: " + e);
+                    }
 			
     				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
     				try{
@@ -113,7 +115,9 @@
     					}
 					
     				}
-    				catch(e){//console.log("error in creating list of things for highlights: " + e);}
+    				catch(e){
+                        console.log("error in creating list of things for highlights: " + e);
+                    }
     				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
 
@@ -178,7 +182,8 @@
     				//pre.innerText = "Loading items failed - connection error";
     	        });				
 				
-    	    });	
+    	    });
+            
         }, 100);
 
 	}

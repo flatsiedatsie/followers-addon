@@ -52,7 +52,7 @@
     }
   },
   "short_name": "Followers",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "web_accessible_resources": [
     "css/*.css",
     "images/*.svg",
