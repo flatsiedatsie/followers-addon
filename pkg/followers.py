@@ -591,8 +591,9 @@ class FollowersAPIHandler(APIHandler):
                                     
                                                         data_to_put = {}
                                                         data_to_put[str(item['property2'])] = numeric_value
-                                                        print("data_to_put = " + str(data_to_put))
-                                                        api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), numeric_value) # #data_to_put )
+                                                        if self.DEBUG:
+                                                            print("data_to_put = " + str(data_to_put))
+                                                        api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
                                                         time.sleep(.1)
                                                         attempted_connections += 1
                                                 
