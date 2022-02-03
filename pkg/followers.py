@@ -730,17 +730,33 @@ class FollowersAPIHandler(APIHandler):
             
             new_simple_things = {}
             for thing in self.things:
+                if self.DEBUG:
+                    print("thing = "  + str(thing))
+                    
                 thing_id = str(thing['id'].rsplit('/', 1)[-1])
-                #print("thing = "  + str(thing))
-                #print("thing_id = "  + str(thing_id))
+                if self.DEBUG:
+                    print("thing_id = "  + str(thing_id))
                 new_simple_things[thing_id] = []
                 
                 if 'properties' in thing:
                     for thing_property_key in thing['properties']:
                         #print("-thing_property_key = " + str(thing_property_key))
-                        property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
-                        #print("property_id = " + str(property_id))
-                        new_simple_things[thing_id].append(thing_property_key)
+                        found_links = False
+                        if 'links' in thing['properties'][thing_property_key]:
+                            if len(thing['properties'][thing_property_key]['links']) > 0:
+                                property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                found_links = True
+                        
+                        if found_links == False:
+                            if 'forms' in thing['properties'][thing_property_key]:
+                                if len(thing['properties'][thing_property_key]['forms']) > 0:
+                                    property_id = thing['properties'][thing_property_key]['forms'][0]['href'].rsplit('/', 1)[-1]
+                        if self.DEBUG:
+                            print("property_id = " + str(property_id))
+                            
+                        # all that trouble.. what is property_id used for?
+                        
+                        new_simple_things[thing_id].append(thing_property_key) 
                 
             self.simple_things = new_simple_things
             self.got_good_things_list = True
@@ -819,7 +835,11 @@ class FollowersAPIHandler(APIHandler):
                                                 if str(item['thing2']) == thing_id:
                                                     for thing_property_key in thing['properties']:
                                                     
-                                                        property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                                        if len(thing['properties'][thing_property_key]['links']) > 0:
+                                                            property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                                        else:
+                                                            property_id = thing['properties'][thing_property_key]['links'][0]['forms'].rsplit('/', 1)[-1]
+                                                            
                                                         if str(item['property2']) == property_id:
                                                             if self.DEBUG:
                                                                 print("Property: " + str(property_id) + ", was of variable type: " + str(thing['properties'][thing_property_key]['type']))
