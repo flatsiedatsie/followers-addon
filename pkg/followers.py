@@ -568,7 +568,11 @@ class FollowersAPIHandler(APIHandler):
                                                     else:
                                                         
                                                         if self.DEBUG:
-                                                            print("property2_type was not in item, falling back to get_int_or_float")
+                                                            print("property2_type int ot float type was not in item, falling back to get_int_or_float")
+                                                        
+                                                        #temporary fix, as sending floats to percentage properties doesn't work properly.
+                                                        numeric_value = round(numeric_value)
+                                                            
                                                 except Exception as ex:
                                                     if self.DEBUG:
                                                         print("Error turning into int: " + str(ex))
