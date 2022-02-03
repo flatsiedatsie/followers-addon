@@ -29,7 +29,7 @@
 
 
     show() {
-        console.log("followers show called");
+        //console.log("followers show called");
         if(this.content == ''){
             //console.log('show called, but content was still empty. Aborting.');
             return;
@@ -47,7 +47,7 @@
     		const follower_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-thing2')[0];
 	    
             if(leader_dropdown == null){
-                console.log("Something is wrong, leader_dropdown does not exist");
+                //console.log("Something is wrong, leader_dropdown does not exist");
             }
             else{
                 //console.log("leader dropdown existed");
@@ -67,7 +67,7 @@
         	  	});
             }
             else{
-                console.log('something is wrong, cannot find add button, followers HTML was not loaded?');
+                //console.log('something is wrong, cannot find add button, followers HTML was not loaded?');
             }
 
 		
@@ -102,7 +102,7 @@
     					}
 					
     				}
-    				catch(e){console.log("error in creating list of things for highlights: " + e);}
+    				catch(e){//console.log("error in creating list of things for highlights: " + e);}
 			
     				var thing_id = things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1);
     				try{
@@ -113,7 +113,7 @@
     					}
 					
     				}
-    				catch(e){console.log("error in creating list of things for highlights: " + e);}
+    				catch(e){//console.log("error in creating list of things for highlights: " + e);}
     				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
 
@@ -136,7 +136,7 @@
     	          `/extensions/${this.id}/api/init`
 
     	        ).then((body) => {
-    				console.log("Followers: init response:", body); 
+    				//console.log("Followers: init response:", body); 
     				//console.log(body);
     				//console.log(body['items']);
                 
@@ -174,7 +174,7 @@
     	        }).catch((e) => {
     	          	//pre.innerText = e.toString();
     	  			//console.log("followers: error in calling init via API handler");
-    	  			console.log(e.toString());
+    	  			//console.log(e.toString());
     				//pre.innerText = "Loading items failed - connection error";
     	        });				
 				
@@ -287,7 +287,7 @@
 					}
 				}
 				catch (e) {
-					console.log("Could not loop over all_things: " + e); // pass exception object to error handler
+					//console.log("Could not loop over all_things: " + e); // pass exception object to error handler
 				}
 				
 			
@@ -299,7 +299,7 @@
 						}
 					}
 					catch (e) {
-						console.log("Could not regenerate actual values of follower: " + e);
+						//console.log("Could not regenerate actual values of follower: " + e);
 					}
 				}
 				
@@ -340,7 +340,7 @@
 								}
 							}
 							catch(e){
-								console.log("error clearing property dropdown select options: " + e);
+								//console.log("error clearing property dropdown select options: " + e);
 							}
 
 							
@@ -361,7 +361,7 @@
 					
 				}
 				catch (e) {
-					console.log("error handling change in follower: " + e);
+					//console.log("error handling change in follower: " + e);
 				}
 				
 				
@@ -435,7 +435,7 @@
 					}
 
 				}).catch((e) => {
-					console.log("followers: error in save items handler");
+					//console.log("followers: error in save items handler");
 					//pre.innerText = e.toString();
 				});
 				
@@ -444,7 +444,7 @@
 		}
 		catch (e) {
 			// statements to handle any exceptions
-			console.log(e); // pass exception object to error handler
+			//console.log(e); // pass exception object to error handler
 		}
 	}
 	
@@ -481,7 +481,7 @@
                         //system_title = properties[prop]['forms'][0]['href'].substr(properties[prop]['forms'][0]['href'].lastIndexOf('/') + 1);
                     }
                     else{
-                        console.log("forms existed, but was empty");
+                        //console.log("forms existed, but was empty");
                     }
                 }
                 
@@ -491,7 +491,7 @@
                         links_source = 'links';
                     }
                     else{
-                        console.log("links existed, but was empty");
+                        //console.log("links existed, but was empty");
                     }
                 }
                 //console.log("final links_source: " + links_source);
@@ -499,13 +499,13 @@
                 if(links_source != null){
                     system_title = properties[prop][links_source][0]['href'].substr(properties[prop][links_source][0]['href'].lastIndexOf('/') + 1);
                 }else{
-                    console.log('Error, no valid links source found?');
+                    //console.log('Error, no valid links source found?');
                 }
                 
                 //console.log('final system_title: ' + system_title);
             }
             catch(e){
-                console.log("forms/links error: " + e);
+                //console.log("forms/links error: " + e);
             }
             
 			
