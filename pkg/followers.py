@@ -500,12 +500,20 @@ class FollowersAPIHandler(APIHandler):
                                 try:
                                     if self.DEBUG:
                                         print("api_get_result = " + str(api_get_result))
-                                    key = list(api_get_result.keys())[0]
+                                    if type(api_get_result) == int:
+                                        wrapped_api_get_result = {}
+                                        wrapped_api_get_result[str(item['property1'])] = api_get_result
+                                        if self.DEBUG:
+                                            print("wrapped_api_get_result = " + str(wrapped_api_get_result))
+                                        api_get_result = wrapped_api_get_result
+                                        
+                                    key = list(api_get_result.keys())[0] #.keys() # ?? isn't that just the property_id?
                                 except Exception as ex:
                                     if self.DEBUG:
                                         print("error parsing the returned json: " + str(ex))
                                     self.error_counter += 2
                                     api_error_spotted += 1
+                                    key = "error" #str(item['property1'])
                 
                 
 
@@ -522,7 +530,12 @@ class FollowersAPIHandler(APIHandler):
 
                                     else:
                                         #print("API GET was succesfull")
-                                        original_value = api_get_result[key]
+                                        if type(api_get_result) == int:
+                                            if self.DEBUG:
+                                                print("Error/warning: api_get_result was still an int")
+                                            original_value = api_get_result
+                                        else:
+                                            original_value = api_get_result[key]
                                         
                                         api_cache[double_name] = original_value
                                         #if self.DEBUG:
@@ -573,12 +586,13 @@ class FollowersAPIHandler(APIHandler):
 
                                                     try:
                                                         if self.DEBUG:
-                                                            print("new value for: " + str(item['thing2']) + " - " + str(item['property2']) + ", will update via API: " + str(numeric_value))
+                                                            print("new value for: " + str(item['thing2']) + " - " + str(item['property2']) + ", will update this numeric_value via API: " + str(numeric_value))
                         
                                     
-                                                        data_to_put = { str(item['property2']) : numeric_value }
-                                                        #print("data_to_put = " + str(data_to_put))
-                                                        api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
+                                                        data_to_put = {}
+                                                        data_to_put[str(item['property2'])] = numeric_value
+                                                        print("data_to_put = " + str(data_to_put))
+                                                        api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), numeric_value) # #data_to_put )
                                                         time.sleep(.1)
                                                         attempted_connections += 1
                                                 
@@ -622,13 +636,16 @@ class FollowersAPIHandler(APIHandler):
                                 
                                 # If any of those API connections failed, we count that item as an item with API issues.
                                 if api_error_spotted > 0:
-                                    print("total api_error_spotted: " + str(api_error_spotted))
+                                    if self.DEBUG:
+                                        print("total api_error_spotted: " + str(api_error_spotted))
                                     self.items_with_issues += 1
                                     if not self.api_seems_down:
                                         self.persistent_data['items'][index]['api_error_count'] += 1
-                                        print("total api error count for this item is now: " + str(self.persistent_data['items'][index]['api_error_count']))
+                                        if self.DEBUG:
+                                            print("total api error count for this item is now: " + str(self.persistent_data['items'][index]['api_error_count']))
                                 elif self.persistent_data['items'][index]['api_error_count'] > 0:
-                                    print("setting device back to intended speed after succesful api call: " + str(int(self.persistent_data['items'][index]['speed'])))
+                                    if self.DEBUG:
+                                        print("setting device back to intended speed after succesful api call: " + str(int(self.persistent_data['items'][index]['speed'])))
                                     self.persistent_data['items'][index]['api_error_count'] = int(self.persistent_data['items'][index]['speed'])
                         
                                 # once every hour check for often the thing made a failed run. If it's a lot.. disable it? Then the user can find out and reset the counter too.
@@ -728,35 +745,48 @@ class FollowersAPIHandler(APIHandler):
             
             self.things = fresh_things
             
+        except Exception as ex:
+            print("Error getting things from API: " + str(ex))
+            
+        try:
             new_simple_things = {}
             for thing in self.things:
                 if self.DEBUG:
                     print("thing = "  + str(thing))
                     
-                thing_id = str(thing['id'].rsplit('/', 1)[-1])
-                if self.DEBUG:
-                    print("thing_id = "  + str(thing_id))
-                new_simple_things[thing_id] = []
+                try:
+                    thing_id = str(thing['id'].rsplit('/', 1)[-1])
+                    if self.DEBUG:
+                        print("thing_id = "  + str(thing_id))
+                    new_simple_things[thing_id] = []
                 
-                if 'properties' in thing:
-                    for thing_property_key in thing['properties']:
-                        #print("-thing_property_key = " + str(thing_property_key))
-                        found_links = False
-                        if 'links' in thing['properties'][thing_property_key]:
-                            if len(thing['properties'][thing_property_key]['links']) > 0:
-                                property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
-                                found_links = True
-                        
-                        if found_links == False:
-                            if 'forms' in thing['properties'][thing_property_key]:
-                                if len(thing['properties'][thing_property_key]['forms']) > 0:
-                                    property_id = thing['properties'][thing_property_key]['forms'][0]['href'].rsplit('/', 1)[-1]
-                        if self.DEBUG:
-                            print("property_id = " + str(property_id))
+                    if 'properties' in thing:
+                        for thing_property_key in thing['properties']:
+                            #print("-thing_property_key = " + str(thing_property_key))
                             
-                        # all that trouble.. what is property_id used for?
+                            try:
+                                found_links = False
+                                if 'links' in thing['properties'][thing_property_key]:
+                                    if len(thing['properties'][thing_property_key]['links']) > 0:
+                                        property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                        found_links = True
                         
-                        new_simple_things[thing_id].append(thing_property_key) 
+                                if found_links == False:
+                                    if 'forms' in thing['properties'][thing_property_key]:
+                                        if len(thing['properties'][thing_property_key]['forms']) > 0:
+                                            property_id = thing['properties'][thing_property_key]['forms'][0]['href'].rsplit('/', 1)[-1]
+                                if self.DEBUG:
+                                    print("property_id = " + str(property_id))
+                            
+                            except Exception as ex:
+                                print("Error extracting links/forms: " + str(ex))
+                            # all that trouble.. what is property_id used for?
+                        
+                            new_simple_things[thing_id].append(thing_property_key)
+                            
+                
+                except Exception as ex:
+                    print("Error parsing to simple_things: " + str(ex))
                 
             self.simple_things = new_simple_things
             self.got_good_things_list = True
@@ -764,7 +794,7 @@ class FollowersAPIHandler(APIHandler):
                 print("- self.simple_things is now: " + str(self.simple_things))
                 
         except Exception as ex:
-            print("Error updating simple_things: " + str(ex))
+            print("Error parsing to simple_things: " + str(ex))
         
     
 
