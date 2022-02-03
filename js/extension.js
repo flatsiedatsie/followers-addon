@@ -29,7 +29,7 @@
 
 
     show() {
-        console.log("followers show called");
+        //console.log("followers show called");
         if(this.content == ''){
             //console.log('show called, but content was still empty. Aborting.');
             return;
