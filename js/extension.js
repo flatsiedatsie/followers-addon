@@ -135,14 +135,14 @@
     				}
     			}
 			
+                const jwt = localStorage.getItem('jwt');
+                
     	  		// Get list of items
     	        window.API.postJson(
-    	          `/extensions/${this.id}/api/init`
+    	          `/extensions/${this.id}/api/init`,
+                    {'jwt':jwt}
 
     	        ).then((body) => {
-    				//console.log("Followers: init response:", body); 
-    				//console.log(body);
-    				//console.log(body['items']);
                 
                     if(typeof body.debug != 'undefined'){
                         this.debug = body.debug;
@@ -150,17 +150,16 @@
                             document.getElementById('extension-followers-debug-warning').style.display = 'block';
                         }
                     }
+                    
+                    if(this.debug){
+                        console.log("Followers: init response: ", body); 
+                    }
                 
                     if(typeof body.ready != 'undefined'){
                         if(body.ready){
             				if(body['state'] == 'ok'){
             					this.items_list = body['items']
             					this.regenerate_items();
-            				}
-            				else{
-                                if(this.debug){
-                                    //pre.innerText = body['state'];
-                                }
             				}
                         }
                         else{

@@ -47,7 +47,6 @@ class FollowersAPIHandler(APIHandler):
             
         self.things = [] # Holds all the things, updated via the API. Used to display a nicer thing name instead of the technical internal ID.
         self.data_types_lookup_table = {}
-        self.token = None
         self.seconds = 0
         self.minutes = 0
         self.error_counter = 0
@@ -113,6 +112,9 @@ class FollowersAPIHandler(APIHandler):
             print("self.persistent_data is now: " + str(self.persistent_data))
 
 
+        if 'token' not in self.persistent_data:
+            self.persistent_data['token'] = None
+
         # Is there user profile data?    
         #try:
         #    print(str(self.user_profile))
@@ -158,7 +160,7 @@ class FollowersAPIHandler(APIHandler):
         if self.DEBUG:
             print("Starting the internal clock")
         try:            
-            if self.token != None:
+            if self.persistent_data['token'] != None:
                 t = threading.Thread(target=self.clock)
                 t.daemon = True
                 t.start()
@@ -200,9 +202,11 @@ class FollowersAPIHandler(APIHandler):
         # Api token
         try:
             if 'Authorization token' in config:
-                self.token = str(config['Authorization token'])
-                if self.DEBUG:
-                    print("-Authorization token is present in the config data.")
+                if len(str(config['Authorization token'])) > 10:
+                    self.persistent_data['token'] = str(config['Authorization token'])
+                else:
+                    if self.DEBUG:
+                        print("-Authorization token is present in the config data, but too short")
         except:
             print("Error loading api token from settings")
         
@@ -264,7 +268,8 @@ class FollowersAPIHandler(APIHandler):
                             self.minutes += 1
                             if self.minutes == 20: # one hour has passed. Time to check if devices should be disabled entirely.
                                 self.minutes = 0
-                            print("self.minutes is now: " + str(self.minutes))
+                            if self.DEBUG:
+                                print("self.minutes is now: " + str(self.minutes))
 
                         if self.error_counter != 0:
                             if self.DEBUG:
@@ -324,13 +329,15 @@ class FollowersAPIHandler(APIHandler):
                             
                             
                             if not 'speed' in self.persistent_data['items'][index]:
-                                print("adding speed property to item, with value of 0 (high speed)")
+                                if self.DEBUG:
+                                    print("adding speed property to item, with value of 0 (high speed)")
                                 self.persistent_data['items'][index]['speed'] = 0 # before the speed option all followers were high speed
                             
                             
                             #once every hour we reset the api_error_count
                             if self.seconds == 0 and self.minutes == 0:
-                                print("seconds and minutes are 0, resetting api error count")
+                                if self.DEBUG:
+                                    print("seconds and minutes are 0, resetting api error count")
                                 self.persistent_data['items'][index]['api_error_count'] = 0
                             
                             # TODO: this could potentially interfere with the speed option, where they both block progress, and the item is never tested
@@ -832,9 +839,14 @@ class FollowersAPIHandler(APIHandler):
                         try:
                             state = 'ok'
         
+                            fresh_token = request.body['jwt']
+                            if fresh_token != None:
+                                if len(str(fresh_token)) > 10:
+                                    self.persistent_data['token'] = str(fresh_token)
+        
                             # Check if a token is present
                             token = True
-                            if self.token == None:
+                            if self.persistent_data['token'] == None:
                                 state = 'This addon requires an authorization token to work. Visit the settings page of this addon to learn more.'
                                 token = False
 
@@ -962,8 +974,8 @@ class FollowersAPIHandler(APIHandler):
         if self.DEBUG:
             print("GET PATH = " + str(api_path))
             #print("intent in api_get: " + str(intent))
-        #print("GET TOKEN = " + str(self.token))
-        if self.token == None:
+        #print("GET TOKEN = " + str(self.persistent_data['token']))
+        if self.persistent_data['token'] == None:
             print("API GET: PLEASE ENTER YOUR AUTHORIZATION CODE IN THE SETTINGS PAGE")
             return []
         
@@ -971,7 +983,7 @@ class FollowersAPIHandler(APIHandler):
             r = requests.get(self.api_server + api_path, headers={
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
-                  'Authorization': 'Bearer ' + str(self.token),
+                  'Authorization': 'Bearer ' + str(self.persistent_data['token']),
                 }, verify=False, timeout=5)
             if self.DEBUG:
                 print("API GET: " + str(r.status_code) + ", " + str(r.reason))
@@ -1053,7 +1065,7 @@ class FollowersAPIHandler(APIHandler):
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(self.token),
+            'Authorization': 'Bearer {}'.format(self.persistent_data['token']),
         }
         try:
             r = requests.put(
