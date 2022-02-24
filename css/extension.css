@@ -16,7 +16,7 @@
 	font-size:1.8rem;
     margin: 0 auto;
     display: block;
-    padding: 0;
+    padding: .5rem;
     padding-left: 6.8rem;
     font-size: 1.8rem;
     background-size: 3.2rem;
@@ -264,10 +264,9 @@
 
 
 #extension-followers-view {
-  height: 100%; /*calc(100% - 7.6rem);*/
-  box-sizing: border-box;
-  /*overflow: auto;*/
-	overflow: scroll;
+    height:calc(100% - 7.6rem);
+    box-sizing: border-box;
+	overflow: auto;
 	position: absolute;
 	top: 7.6rem;
 	left: 0;
@@ -278,8 +277,7 @@
 #extension-followers-content {
 	display:flex;
 	flex-direction: column;
-	flex-direction: column;
-	overflow: auto;
+	overlow: auto;
   	position: relative;
   	text-align: left;
   	font-size: 1.6rem;
