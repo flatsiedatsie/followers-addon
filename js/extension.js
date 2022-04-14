@@ -207,7 +207,10 @@
 		
 			const original = document.getElementById('extension-followers-original-item');
 			const list = document.getElementById('extension-followers-list');
-			list.innerHTML = "";
+			if(items.len > 0){
+			    list.innerHTML = "";
+			}
+            
 		
 			// Loop over all items
 			for( var item in items ){

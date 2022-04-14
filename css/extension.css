@@ -305,6 +305,18 @@
     color:white;
 }
 
+#extension-followers-list-explanation{
+    display:flex;
+    height: calc(100vh - 20rem);
+    width:100%;
+    align-items:center;
+    justify-content:center;
+}
+#extension-followers-list-explanation > *{
+    max-width:80rem;
+}
+
+
 #extension-followers-not-ready-warning,
 #extension-followers-missing-key-warning{
     margin:2rem auto;
@@ -314,7 +326,6 @@
     border-radius:.5rem;
     border:2px solid orange;
 }
-
 
 #extension-followers-debug-warning{
     max-width:60rem;
