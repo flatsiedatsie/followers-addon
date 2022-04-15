@@ -198,18 +198,23 @@
 		//console.log("this.all_things = ");
 		//console.log(this.all_things);
 		
+        this.items_list
+        
 		const pre = document.getElementById('extension-followers-response-data');
 		//const leader_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		//const follower_property_dropdown = document.querySelectorAll(' #extension-followers-view #extension-followers-original-item .extension-followers-property2')[0];
 		
 		try {
 			items = this.items_list
-		
+		    
 			const original = document.getElementById('extension-followers-original-item');
 			const list = document.getElementById('extension-followers-list');
-			if(items.len > 0){
+			if(items.length > 0){
+                //console.log("at least one item");
 			    list.innerHTML = "";
 			}
+            
+            //console.log("followers: regenerating: items: ", items);
             
 		
 			// Loop over all items
