@@ -119,6 +119,7 @@
 	/*border-bottom:1px solid white;*/
 	padding: 0;
 	display: flex;
+    flex-direction:column;
 	/*background-color: #46769C;*/
     background-color:rgba(0,0,0,.2);
 	border-radius:.5rem;
@@ -144,7 +145,7 @@
 	color:white;
 	font-size: 1.8rem;
 	border-right: 1px solid rgba(255,255,255,.3);
-	width:100%;
+	width: calc(100% - 1px);
 	padding:0;
 	overflow: hidden;
 }
@@ -175,7 +176,6 @@
 
 .extension-followers-item-menu{
 	display: flex;
-	flex-direction:column;
 	justify-content:space-around;
 	padding:2rem;
 }
@@ -277,12 +277,14 @@
 #extension-followers-content {
 	display:flex;
 	flex-direction: column;
-	overlow: auto;
+	overflow: auto;
   	position: relative;
   	text-align: left;
   	font-size: 1.6rem;
   	color: #fff;
 	height:auto;
+    max-width:80rem;
+    margin: 0 auto;
 }
 
 
@@ -337,15 +339,38 @@
 }
 
 
+@media screen and (max-width: 800px) {
+
+    .extension-followers-item-sentence{
+        border:0;
+        width:100%;
+    }
+    
+}
+
+
+@media screen and (min-width: 801px) {
+
+    .extension-followers-item{
+        flex-direction:row;
+    }
+
+    .extension-followers-item-menu{
+        flex-direction:column;
+    }
+    
+}
 
 @media screen and (min-width: 1025px) {
 	#extension-followers-view{
+		
+		height:100vh; 
+		/*
 		left:9.6rem;
 		top: 0;
-		height:100vh; 
-		position:absolute;
+        position:absolute;
 		width: calc(100% - 9.6rem);
-		padding-right:9.6rem;
+		padding-right:9.6rem;*/
 	}
 	
 	#extension-followers-content-container{

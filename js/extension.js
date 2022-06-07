@@ -147,12 +147,9 @@
                     if(typeof body.debug != 'undefined'){
                         this.debug = body.debug;
                         if(body.debug){
+                            console.log("followers init response: ", body);
                             document.getElementById('extension-followers-debug-warning').style.display = 'block';
                         }
-                    }
-                    
-                    if(this.debug){
-                        console.log("Followers: init response: ", body); 
                     }
                 
                     if(typeof body.ready != 'undefined'){
