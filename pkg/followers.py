@@ -63,6 +63,13 @@ class FollowersAPIHandler(APIHandler):
         
         #self.DEBUG = True
         
+        # Respond to gateway version
+        try:
+            if self.DEBUG:
+                print("Gateway version: " + str(self.gateway_version))
+        except:
+            print("self.gateway_version did not exist")
+        
         
         # Temporary moving of persistence files   
         try:

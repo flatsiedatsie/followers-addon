@@ -375,7 +375,7 @@
 	
 	#extension-followers-content-container{
 		height:auto;
-		width: calc(100% - 3rem);
+		width: 100%;
 	}
 	
 }

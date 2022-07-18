@@ -32,30 +32,30 @@
     },
     "schema": {
       "properties": {
-        "Authorization token": {
-          "description": "To be allowed to get information on all your devices, you have to create an 'authorization' code. It's basically a very long password. You can generate it yourself under Settings -> Developer -> Create local authorization",
-          "type": "string"
-        },
         "Ignore missing properties": {
           "description": "It can happen that a follower rule no longer works because one of the properties is not available (yet). By default a missing property will cause the follower rule to be disabled. If you want to ignore missing properties, check this box.",
           "type": "boolean"
+        },
+        "Authorization token": {
+          "description": "Advanced. To be allowed to get information on all your devices, you have to create an 'authorization' code. It's basically a very long password. You can generate it yourself under Settings -> Developer -> Create local authorization",
+          "type": "string"
         },
         "Debugging": {
           "description": "Advanced. Debugging allows you to diagnose any issues with the add-on. If enabled it will result in a lot more debug data in the internal log (which can be found under settings -> developer -> view internal logs).",
           "type": "boolean"
         }			
       },
-      "required": [
-        "Token"
-      ],
+      "required": [],
       "type": "object"
     }
   },
   "short_name": "Followers",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "web_accessible_resources": [
     "css/*.css",
     "images/*.svg",
+	"images/*.png",
+	"images/*.jpg",
     "js/*.js",
     "views/*.html"
   ]
