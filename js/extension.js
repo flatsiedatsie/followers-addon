@@ -75,6 +75,22 @@
     		// Pre populating the original item that will be clones to create new ones
     	    API.getThings().then((things) => {
 			
+                function compare(a, b) {
+                    
+                  const thingA = a.title.toUpperCase();
+                  const thingB = b.title.toUpperCase();
+
+                  if (thingA > thingB) {
+                    return 1;
+                  } else if (thingA < thingB) {
+                    return -1;
+                  }
+                  return 0;
+                }
+
+                things.sort(compare);
+                //console.log("sorted things: ", things);
+            
     			this.all_things = things;
     			//console.log("followers: all things: ", things);
     			//console.log(things);
@@ -116,7 +132,7 @@
 					
     				}
     				catch(e){
-                        console.log("error in creating list of things for highlights: " + e);
+                        console.log("error in creating list of things for item: " + e);
                     }
     				thing_ids.push( things[key]['href'].substr(things[key]['href'].lastIndexOf('/') + 1) );
 				
@@ -265,13 +281,14 @@
 			
 				// Populate the properties dropdown
 				try{
+                    
 					for( var thing in this.all_things ){
-						
-						//console.log("this.all_things[thing]['id'] = " + this.all_things[thing]['id']);
-						//console.log("items[item]['thing1'] = " + items[item]['thing1']);
+						console.log("\nthis.all_things[thing]['title']: ", this.all_things[thing]['title']);
+						console.log("this.all_things[thing]['id'] = " + this.all_things[thing]['id']);
+						console.log("items[item]['thing1'] = " + items[item]['thing1']);
 						
 						if( this.all_things[thing]['id'].endsWith( items[item]['thing1'] ) ){
-							//console.log("bingo, at thing1. Now to grab properties.");
+							console.log("bingo, at thing1. Now to grab properties.");
 							const property1_dropdown = clone.querySelectorAll('.extension-followers-property1')[0];
 							const property_lists = this.get_property_lists(this.all_things[thing]['properties']);
 							//console.log("property lists:");
@@ -283,7 +300,7 @@
 							}
 						}
 						if( this.all_things[thing]['id'].endsWith( items[item]['thing2'] ) ){
-							//console.log("bongo, at thing2 (" + items[item]['thing2'] + "). Now to grab properties.");
+							console.log("bongo, at thing2 (" + items[item]['thing2'] + "). Now to grab properties.");
 							const property2_dropdown = clone.querySelectorAll('.extension-followers-property2')[0];
 							//console.log(property2_dropdown);
 							const property_lists = this.get_property_lists(this.all_things[thing]['properties']);
@@ -573,8 +590,7 @@
 	    	ele.className=ele.className.replace(reg,' ');
 	  	}
 	}
-		
-		
+    
 
   }
 
