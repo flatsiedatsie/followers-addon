@@ -150,7 +150,8 @@ class FollowersAPIHandler(APIHandler):
         if not self.DEBUG:
             sleep(20)
             
-        print("Followers is now getting the simple things list.")
+        if self.DEBUG:
+            print("Followers is now getting the simple things list.")
         self.update_simple_things()
         
         
