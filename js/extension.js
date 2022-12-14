@@ -224,14 +224,14 @@
 				const delete_button = clone.querySelectorAll('.extension-followers-item-delete-button')[0];
 				delete_button.addEventListener('click', (event) => {
 					var target = event.currentTarget;
-					var parent3 = target.parentElement.parentElement.parentElement; //parent of "target"
+                    var parent3 = target.closest('.extension-followers-item');
 					parent3.classList.add("delete");
 			  	});
 			
 				const final_delete_button = clone.querySelectorAll('.rule-delete-confirm-button')[0];
 				final_delete_button.addEventListener('click', (event) => {
 					var target = event.currentTarget;
-					var parent3 = target.parentElement.parentElement.parentElement; //parent of "target"
+                    var parent3 = target.closest('.extension-followers-item');
 					var parent4 = parent3.parentElement;
 					parent4.removeChild(parent3);
 					parent4.dispatchEvent( new CustomEvent('change',{bubbles:true}) );
@@ -240,7 +240,7 @@
 				const cancel_delete_button = clone.querySelectorAll('.rule-delete-cancel-button')[0];
 				cancel_delete_button.addEventListener('click', (event) => {
 					var target = event.currentTarget;
-					var parent3 = target.parentElement.parentElement.parentElement;
+                    var parent3 = target.closest('.extension-followers-item');
 					parent3.classList.remove("delete");
 					
 				});
@@ -304,11 +304,13 @@
 				for(var key in this.item_elements){
 					try {
 						if(this.item_elements[key] != 'enabled'){
-							clone.querySelectorAll('.extension-followers-' + this.item_elements[key] )[0].value = items[item][ this.item_elements[key] ];
+                            if(typeof items[item][ this.item_elements[key] ] != 'undefined'){
+                                clone.querySelectorAll('.extension-followers-' + this.item_elements[key] )[0].value = items[item][ this.item_elements[key] ];
+                            }
 						}
 					}
 					catch (e) {
-						//console.log("Could not regenerate actual values of follower: " + e);
+						//console.log("Could not regenerate actual values of follower: " + str(e));
 					}
 				}
 				
