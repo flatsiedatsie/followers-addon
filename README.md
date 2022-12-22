@@ -10,4 +10,4 @@ You can also do a reverse follow, where one value rises as another one lowers. F
 
 ![name-of-you-image](https://github.com/flatsiedatsie/followers-addon/blob/master/followers_screenshot.png?raw=true)
 
-Values are updated once per second.
+Not shown in the screen shot, but in the latest version you can select how frequently the values should 'synchronize'. Once per second or once very 10 seconds, for example.
