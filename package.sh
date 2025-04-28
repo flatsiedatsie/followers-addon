@@ -22,8 +22,10 @@ mkdir -p lib package
 
 #pip3 install importlib-metadata
 #pip3 install setuptools-scm
-pip3 install importlib-metadata>=4.6 --prefix ""
-pip3 install  -t lib importlib-metadata>=4.6
+#pip3 install importlib-metadata>=4.6 --prefix ""
+#pip3 install  -t lib importlib-metadata>=4.6
+
+pip3 install -t lib setuptools-scm
 
 # Pull down Python dependencies
 pip3 install -r requirements.txt -t lib --no-binary :all: --prefix ""
