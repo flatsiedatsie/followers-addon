@@ -20,7 +20,8 @@ fi
 # Prep new package
 mkdir -p lib package
 
-pip3 install importlib-metadata
+pip3 install -u importlib-metadata
+pip3 install -u setuptools-scm
 
 # Pull down Python dependencies
 pip3 install -r requirements.txt -t lib --no-binary :all: --prefix ""
