@@ -1,17 +1,34 @@
 """Followers API handler."""
 
 
+
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib'))
 import json
 import time
+import uuid
 from time import sleep
+import base64
+import random
 import requests
+import websocket
+#import websocket-client
 import threading
 
+from types import MethodType
+
+import asyncio
+#import websockets
+import ssl
+
+
+
+#from websockets.asyncio.client import connect
+
 try:
-    from gateway_addon import APIHandler, APIResponse, Database
+    from gateway_addon import APIHandler, APIResponse, Database, AddonManagerProxy
     #print("succesfully loaded APIHandler and APIResponse from gateway_addon")
 except:
     print("Import APIHandler and APIResponse from gateway_addon failed. Use at least WebThings Gateway version 0.10")
@@ -30,6 +47,32 @@ if 'WEBTHINGS_HOME' in os.environ:
 
 
 
+
+"""
+class FollowersProxy(AddonManagerProxy):
+
+    def __init__(self, plugin_id, verbose,test=1,test2=1):
+        print("in FollowersProxy init. proxy_id: ", plugin_id)
+        
+        self.verbose = verbose
+        self.plugin_id = proxy_id
+        
+        self.ready = False
+        self.extra_proxy_name = 'follower_extra_proxy'
+        self.DEBUG = False
+        self.name = self.__class__.__name__
+        AddonManagerProxy.__init__(self, plugin_id=plugin_id, verbose=verbose, test=1,test2=2)
+        #super(AddonManagerProxy, self).__init__(plugin_id=plugin_id, verbose=verbose)
+        
+        
+    def on_message(self, msg):
+        if self.verbose:
+            print('EXTEA FollowersProxy: recv:', msg)
+
+        msg_type = msg['messageType']
+"""
+
+
 class FollowersAPIHandler(APIHandler):
     """Followers API handler."""
 
@@ -37,6 +80,7 @@ class FollowersAPIHandler(APIHandler):
         """Initialize the object."""
         #print("INSIDE API HANDLER INIT")
         
+        #print("\n\n\nF O L L O W E R S")
         
         self.addon_name = 'followers'
         self.running = True
@@ -55,11 +99,18 @@ class FollowersAPIHandler(APIHandler):
         self.got_good_things_list = False
         self.api_seems_down = False
         
+        self.initial_connection_made = False
+        
+        self.websockets = {}
+        self.websocket_threads = {}
+        
         # LOAD CONFIG
         try:
             self.add_from_config()
         except Exception as ex:
             print("Error loading config: " + str(ex))
+        
+        self.DEBUG = False
         
         #self.DEBUG = True
         
@@ -78,6 +129,7 @@ class FollowersAPIHandler(APIHandler):
         # Get persistent data
         try:
             self.persistence_file_path = os.path.join(self.user_profile['dataDir'], self.addon_name, 'persistence.json')
+            #print("self.persistence_file_path: ", self.persistence_file_path)
             if not os.path.isdir(self.persistence_file_path):
                 os.mkdir(self.persistence_file_path)
         except:
@@ -96,22 +148,34 @@ class FollowersAPIHandler(APIHandler):
         
         first_run = False
         try:
+            #print("self.persistence_file_path: " + str(self.persistence_file_path))
             with open(self.persistence_file_path) as f:
                 self.persistent_data = json.load(f)
                 if self.DEBUG:
                     print("Persistence data was loaded succesfully.")
                 
-        except:
+        except Exception as ex:
             first_run = True
-            print("Could not load persistent data (if you just installed the add-on then this is normal)")
+            print("Could not load persistent data (if you just installed the add-on then this is normal). " + str(ex))
             self.persistent_data = {'items':[]}
             
         if self.DEBUG:
             print("self.persistent_data is now: " + str(self.persistent_data))
 
 
-        if 'token' not in self.persistent_data:
+        if not 'token' in self.persistent_data:
             self.persistent_data['token'] = None
+
+        if not 'items' in self.persistent_data:
+            self.persistent_data['items'] = []
+
+        if not 'websocket_host' in self.persistent_data:
+            self.persistent_data['websocket_host'] = 'localhost'
+        
+        #self.persistent_data['websocket_host'] = 'localhost'
+            
+        if not 'websocket_port' in self.persistent_data:
+            self.persistent_data['websocket_port'] = 8080
 
         # Is there user profile data?    
         #try:
@@ -119,6 +183,43 @@ class FollowersAPIHandler(APIHandler):
         #except:
         #    print("no user profile data")
 
+        #print("__>")
+        #print("self.persistent_data: ", str(self.persistent_data))
+        
+        # The python 3 equivalent for z.q = new.instancemethod(method, z, None) is z.q = types.MethodType(method, z). Remember to import types instead of new.
+        
+        #def new_m(self,message):
+        #    resp = json.loads(message)
+
+        #a.m = MethodType(new_m, a)
+            
+        
+        try:
+            
+            """
+            self.extra_proxy = AddonManagerProxy("followers_extra_proxy", verbose=True)
+        
+            #self.extra_proxy.send_error("fake error")
+            
+            print(".ipc_client: ", self.extra_proxy.ipc_client)
+            
+            print(".ipc_client.on_message before: ", self.extra_proxy.ipc_client.on_message)
+            
+            self.extra_proxy.ipc_client.on_message = MethodType(new_m, self.extra_proxy.ipc_client)
+            
+            print(".ipc_client.on_message after: ", self.extra_proxy.ipc_client.on_message)
+            
+            print("extra proxy_running? ", str(self.extra_proxy.running))
+            """
+            pass
+            
+            #self.extra_proxy = FollowersProxy("followers_extra_proxy", verbose=True) # "followers_extra", verbose=True
+        except Exception as ex:
+            print("failed to create extra proxy: ", ex)
+        #print("extra proxy created?")
+        #print(str(self.extra_proxy))
+        #print("extra ipc_client: ", str(self.extra_proxy['self.ipc_client']))
+            
             
         # Intiate extension addon API handler
         try:
@@ -147,8 +248,8 @@ class FollowersAPIHandler(APIHandler):
         self.simple_things = {}
 
         # Give the addons time to create all devices
-        if not self.DEBUG:
-            sleep(20)
+        #if not self.DEBUG:
+        #    sleep(20)
             
         if self.DEBUG:
             print("Followers is now getting the simple things list.")
@@ -157,6 +258,7 @@ class FollowersAPIHandler(APIHandler):
         
 
         # Start the internal clock
+        
         if self.DEBUG:
             print("Starting the internal clock")
         try:            
@@ -166,7 +268,17 @@ class FollowersAPIHandler(APIHandler):
                 t.start()
         except:
             print("Error starting the clock thread")
-
+        
+            
+        #self.ws_thing_id = "internet-radio"
+        """
+        if 'token' in self.persistent_data and len(str(self.persistent_data['token'])) > 10:
+            print("token present")
+            #ws_url = 'ws://localhost:8080/things/' + str(self.ws_thing_id) + '?jwt=' + str(self.persistent_data['token']) # /properties/power
+            self.start_websocket(self.ws_thing_id)
+        else:
+            print("no jwt token in persistent data")
+        """
         self.ready = True
 
 
@@ -207,6 +319,15 @@ class FollowersAPIHandler(APIHandler):
                 else:
                     if self.DEBUG:
                         print("-Authorization token is present in the config data, but too short")
+                        
+            if 'Websocket host' in config:
+                if len(str(config['Websocket host'])) > 3:
+                    self.persistent_data['websocket_host'] = str(config['Websocket host'])
+                
+            if 'Websocket port' in config:
+                if len(str(config['Host name'])) > 1:
+                    self.persistent_data['websocket_port'] = int(config['Websocket port'])
+                        
         except:
             if self.DEBUG:
                 print("Error loading api token from settings")
@@ -230,6 +351,7 @@ class FollowersAPIHandler(APIHandler):
 
     def clock(self):
         """ Runs every second """
+        #print("in clock. self.running: ", self.running)
         previous_action_times_count = 0
         #previous_injection_time = time.time()
         enabled_count = len(self.persistent_data['items'])
@@ -244,13 +366,28 @@ class FollowersAPIHandler(APIHandler):
                 time.sleep(.1)
             else:
                 previous_timestamp = current_timestamp
-                if self.DEBUG:
-                    print(" ")
-                    print("previous_timestamp: " + str(previous_timestamp))
+                #if self.DEBUG:
+                #    print(" ")
+                #    print("previous_timestamp: " + str(previous_timestamp))
                 
                 try:
                     if self.got_good_things_list:
+                        
+                        if self.initial_connection_made == False:
+                            print("self.initial_connection_made: ", self.initial_connection_made)
+                            if 'token' in self.persistent_data and len(str(self.persistent_data['token'])) > 10:
+                                self.initial_connection_made = True
+                                self.connect_to_all_things()
+                                self.ready = True
+                            
+                                
+                                
+                                
+                        
+                    return
                     
+                    
+                    if self.got_good_things_list:
                         """
                         if self.DEBUG:
                             print("FOLLOWERS IS MUCH SLOWER TO MAKE DEBUGGING EASIER. SLEEPING 4 SECONDS.")
@@ -318,8 +455,8 @@ class FollowersAPIHandler(APIHandler):
                                 if self.DEBUG:
                                     print("Follower #" + str(index))
                     
-                                attempted_connections = 0 # can make up to 2 API connections in one run, if all goes well.
-                                api_error_spotted = 0
+                                #attempted_connections = 0 # can make up to 2 API connections in one run, if all goes well.
+                                #api_error_spotted = 0
 
                     
 
@@ -697,15 +834,17 @@ class FollowersAPIHandler(APIHandler):
                                             print("Set an incomplete enabled item to disabled")
                             
                             except Exception as ex:
-                                print("Error while looping over an item: " + str(ex))
-                                print("Error on line {}".format(sys.exc_info()[-1].tb_lineno))   
+                                if self.DEBUG:
+                                    print("Error while looping over an item: " + str(ex))
+                                    print("Error on line {}".format(sys.exc_info()[-1].tb_lineno))   
                 
                 
                         # the for-loop is done
                         #if all followers we tried to connect to have api errors simultaneously, that means the internet is down, and API errors should be ignored.
-                        if self.DEBUG:
-                            print("attempted_items: " + str(attempted_items))
-                            print("items_with_issues: " + str(self.items_with_issues))
+                        
+                        #if self.DEBUG:
+                        #    print("attempted_items: " + str(attempted_items))
+                        #    print("items_with_issues: " + str(self.items_with_issues))
                     
                         if enabled_count > 2:
                             if self.items_with_issues == attempted_items != 0:
@@ -726,8 +865,8 @@ class FollowersAPIHandler(APIHandler):
                         else:
                             self.api_seems_down = False
                         #print("items: " + str(self.persistent_data['items']))
-                        if self.DEBUG:
-                            print(".")
+                        #if self.DEBUG:
+                        #    print(".")
                     
                 
                         if self.error_counter > 0:
@@ -776,19 +915,25 @@ class FollowersAPIHandler(APIHandler):
             
             self.things = fresh_things
             
+            #print("update_simple_things: self.things: ", self.things)
         except Exception as ex:
-            print("Error getting things from API: " + str(ex))
+            if self.DEBUG:
+                print("Error getting things from API: " + str(ex))
             
+                
         try:
             new_simple_things = {}
+            #print("self.things length: ",len(self.things))
+            
             for thing in self.things:
                 if self.DEBUG:
-                    print("thing = "  + str(thing))
+                    print("* thing = "  + str(thing))
                     
                 try:
                     thing_id = str(thing['id'].rsplit('/', 1)[-1])
                     if self.DEBUG:
                         print("thing_id = "  + str(thing_id))
+                    
                     new_simple_things[thing_id] = []
                 
                     if 'properties' in thing:
@@ -796,21 +941,26 @@ class FollowersAPIHandler(APIHandler):
                             #print("-thing_property_key = " + str(thing_property_key))
                             
                             try:
-                                found_links = False
-                                if 'links' in thing['properties'][thing_property_key]:
-                                    if len(thing['properties'][thing_property_key]['links']) > 0:
-                                        property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
-                                        found_links = True
+                                found_forms = False
+                                if 'forms' in thing['properties'][thing_property_key].keys():
+                                    if len(thing['properties'][thing_property_key]['forms']) > 0:
+                                        property_id = thing['properties'][thing_property_key]['forms'][0]['href'].rsplit('/', 1)[-1]
+                                        found_forms = True
+                                        
+                                if found_forms == False:
+                                    if 'links' in thing['properties'][thing_property_key].keys():
+                                        if len(thing['properties'][thing_property_key]['links']) > 0:
+                                            property_id = thing['properties'][thing_property_key]['links'][0]['href'].rsplit('/', 1)[-1]
+                                            
                         
-                                if found_links == False:
-                                    if 'forms' in thing['properties'][thing_property_key]:
-                                        if len(thing['properties'][thing_property_key]['forms']) > 0:
-                                            property_id = thing['properties'][thing_property_key]['forms'][0]['href'].rsplit('/', 1)[-1]
+                                
+                                    
                                 if self.DEBUG:
                                     print("property_id = " + str(property_id))
                             
                             except Exception as ex:
-                                print("Error extracting links/forms: " + str(ex))
+                                if self.DEBUG:
+                                    print("Error extracting links/forms: " + str(ex))
                             # all that trouble.. what is property_id used for?
                         
                             new_simple_things[thing_id].append(thing_property_key)
@@ -823,12 +973,244 @@ class FollowersAPIHandler(APIHandler):
             self.got_good_things_list = True
             if self.DEBUG:
                 print("- self.simple_things is now: " + str(self.simple_things))
+                print("self.got_good_things_list: ", self.got_good_things_list)
+                
+            if self.got_good_things_list and self.initial_connection_made == False and 'token' in self.persistent_data and len(str(self.persistent_data['token'])) > 10:
+                self.initial_connection_made = True
+                self.connect_to_all_things()
+                self.ready = True
                 
         except Exception as ex:
-            print("Error parsing to simple_things: " + str(ex))
+            if self.DEBUG:
+                print("Error parsing to simple_things: " + str(ex))
         
     
+    def connect_to_all_things(self):
+        try:
+            
+            #print("in connect_to_all_things.   self.persistent_data['items']: " + str(self.persistent_data['items']))
+            for index, item in enumerate(self.persistent_data['items']):
+                
+                if str(item['thing1']) not in self.websockets.keys():
+                    #print("calling start_websocket for thing: ", item['thing1'])
+                    self.start_websocket(item['thing1'])
+                #else:
+                #    print("thing already in self.websockets: ", item['thing1'])
+            
+        except Exception as ex:
+            if self.DEBUG:
+                print("caught exception in connect_all_things: ", ex)
+            
+        
 
+                
+        
+    
+    def start_websocket(self,device_id):
+        
+        if self.DEBUG: 
+            print("in start_websocket.  device_id: ", device_id)
+        
+        def on_ws_open(ws):
+            if self.DEBUG: 
+                print("websocket opened")
+
+            
+        def on_ws_message(ws, message):
+            if self.DEBUG: 
+                print("received websocket message: ", str(message))
+            try:
+                
+                message = json.loads(message)
+                if str(message['messageType']) == "propertyStatus":
+                    self.handle_ws_update(message)
+                
+                
+            except Exception as ex:
+                if self.DEBUG: 
+                    print("caught an error in on_ws_message: ", ex)
+            
+            
+
+        def on_ws_close(ws,close_status_code, close_msg):
+            if self.DEBUG: 
+                print("closed websocket connection.  close_status_code, close_msg: ", close_status_code, close_msg)
+        
+        
+        def on_ws_error(ws,err):
+            if self.DEBUG: 
+                print("websocket ERROR: ", err)
+                
+            if device_id in self.websockets.keys():
+                if self.DEBUG:
+                    print("will delete the websocket with device_id: ", device_id)
+                del self.websockets[device_id]
+            else:
+                if self.DEBUG:
+                    print("error, device_id not in self.websockets?: ", device_id)
+        
+        
+        ws_url = 'ws://' + str(self.persistent_data['websocket_host']) + ':' + str(self.persistent_data['websocket_port']) + '/things/' + str(device_id) + '?jwt=' + str(self.persistent_data['token'])
+        
+        if self.DEBUG:
+            print("ws_url: ", ws_url)
+            
+            
+        websocket_headers = {
+                    'Accept':'application/json',
+                    'Authorization':'Bearer ' + str(self.persistent_data['token'])
+                    }
+                    
+        try:
+            self.websockets[device_id] = websocket.WebSocketApp(ws_url,
+                                header=websocket_headers,
+                                #cookie="; ".join(["%s=%s" %(i, j) for i, j in cookies.items()]),
+                                on_open=on_ws_open, 
+                                on_message=on_ws_message,
+                                on_close=on_ws_close,
+                                on_error=on_ws_error,
+                                subprotocols=["webthing"] # ,"webthingprotocol
+                        )
+                        
+            self.websocket_threads[device_id] = threading.Thread(target=lambda: self.websockets[device_id].run_forever())
+            self.websocket_threads[device_id].daemon = True
+            self.websocket_threads[device_id].start()
+            
+        except Exception as ex:
+            print("caught error starting websock: ", ex)    
+        
+        
+        
+    def handle_ws_update(self,message):
+        if self.DEBUG:
+            print("in handle_ws_update. message: ", json.dumps(message,indent=4))
+    
+        # {"id":"internet-radio","messageType":"propertyStatus","data":{"volume":69}}
+        for index, item in enumerate(self.persistent_data['items']):
+            #print("\nhandle_ws_update: " + str(index) + ".")
+            #print("self.persistent_data['items'][index]: ", self.persistent_data['items'][index])
+            #print("handle_ws_update: item: ", item)
+        
+            #print("handle_ws_update: item thing1: ", item['thing1'])
+            
+            # {"id":"internet-radio","messageType":"propertyStatus","data":{"volume":69}}
+            
+            message_property = None
+            if 'data' in message.keys() and 'enabled' in item.keys():
+                #print("message['data'].keys(), len(message['data'].keys(): ", len(message['data'].keys()), message['data'].keys() )
+                if len(message['data'].keys()):
+                    
+                    message_property = str(list(message['data'].keys())[0] )
+                    #print("message_property: ", message_property, " =?= ", str(item['property1']))
+            
+                    if item['enabled'] == True and str(item['thing1']) == str(message['id']):
+                        if 'data' in message.keys() and str(item['property1']) == str(message_property):
+                            if self.DEBUG:
+                                print("handle_ws_update: got relevant property!: ", str(item['property1']))
+                            self.set_property_value(index, message['data'][str(message_property)])
+        
+        
+    # new method for websocket listener
+    def set_property_value(self, items_index, original_value):
+            
+        try:
+            if items_index < len(self.persistent_data['items']):
+                item = self.persistent_data['items'][items_index]
+        
+                # If the value we received is within tolerances, then we calculate the value that the second property should be set to
+                if min(float(item['limit1']), float(item['limit2'])) <= float(original_value) <= max(float(item['limit1']), float(item['limit2'])):
+                    output = translate(original_value, item['limit1'], item['limit2'], item['limit3'], item['limit4'])
+                    if self.DEBUG:
+                        print("set_property_value: got translated output: " + str(output))
+
+                    if 'previous_value' not in item:
+                        item['previous_value'] = None # We remember the previous value that was sent to the second device. If we sent it before, we don't resend it, to avoid overwhelming the API. TODO: makes more sense to check if the previous input was the same as the result? Although I guess this has the same effect.
+
+                    # Figure out what type of variable it is: integer or float
+                    try:
+                        numeric_value = get_int_or_float(output)
+                        #print("initial numeric_value = " + str(numeric_value))
+                        if 'property2_type' in item:
+                            if str(item['property2_type']) == 'integer':
+                                numeric_value = round(numeric_value)
+                        else:
+                
+                            if self.DEBUG:
+                                print("property2_type int ot float type was not in item, falling back to get_int_or_float")
+                
+                            #temporary fix, as sending floats to percentage properties doesn't work properly.
+                            numeric_value = round(numeric_value)
+                    
+                    except Exception as ex:
+                        if self.DEBUG:
+                            print("Error turning into int: " + str(ex))
+                        return
+
+
+                    if not 'previous_value' in self.persistent_data['items'][items_index]:
+                        self.persistent_data['items'][items_index]['previous_value'] = None
+
+
+                    if str(item['previous_value']) == str(numeric_value):
+                        if self.DEBUG:
+                            print("current value was already set, will not do PUT")
+                    else:
+
+                        try:
+                            if self.DEBUG:
+                                print("new value for: " + str(item['thing2']) + " - " + str(item['property2']) + ", will update this numeric_value via API: " + str(numeric_value))
+
+
+                            data_to_put = {}
+                            data_to_put[str(item['property2'])] = numeric_value
+                            if self.DEBUG:
+                                print("data_to_put = " + str(data_to_put))
+                            
+                            api_put_result = self.api_put( '/things/' + str(item['thing2']) + '/properties/' + str(item['property2']), data_to_put )
+                            time.sleep(.02)
+                            #attempted_connections += 1
+        
+                            try:
+                                key = list(api_put_result.keys())[0]
+                                if key == "error":
+                                    api_error_spotted += 1
+                
+                                    if self.DEBUG:
+                                        print("api_put_result['error'] = " + str(api_put_result[key]))
+                                    if api_put_result[key] == 500:
+                                        if self.DEBUG:
+                                            print("API PUT failed with a 500 server error.")
+                                        if self.ignore_missing_properties == False:
+                                            self.error_counter += 2
+            
+                                else:
+                                    # updating the property to the new value worked
+                                    #print("updating the property to the new value worked")
+                                    
+                                    self.persistent_data['items'][items_index]['previous_value'] = numeric_value
+            
+    
+                            except Exception as ex:
+                                if self.DEBUG:
+                                    print("Error while checking if PUT was succesful: " + str(ex))
+
+                        except Exception as ex:
+                            print("Error late in putting via API: " + str(ex))
+
+                else:
+                    if self.DEBUG:
+                        print("input was out of bounds")
+            else:
+                if self.DEBUG:
+                    print("item no longer in persistent data?")
+        
+        except Exception as ex:
+            if self.DEBUG:
+                print("caught error in set_property_value: ", ex)
+                
+            
+        
+        
 
 
 #

@@ -28,6 +28,8 @@
     "default": {
       "Authorization token": "",
 	  "Ignore missing properties": false,
+	  "Websocket host": "localhost",
+	  "Websocket port": 8080,
       "Debugging": false
     },
     "schema": {
@@ -35,6 +37,14 @@
         "Ignore missing properties": {
           "description": "It can happen that a follower rule no longer works because one of the properties is not available (yet). By default a missing property will cause the follower rule to be disabled. If you want to ignore missing properties, check this box.",
           "type": "boolean"
+        },
+        "Websocket host": {
+          "description": "Advanced. The websocket hostname. The default is 'localhost'.",
+          "type": "string"
+        },
+        "Websocket port": {
+          "description": "Advanced. The websocket port. The default is 8080.",
+          "type": "integer"
         },
         "Authorization token": {
           "description": "Advanced. To be allowed to get information on all your devices, this addon needs an 'authorization' code. Normally this is done automaticallty. It's basically a very long password. If you prefer you can generate it yourself under Settings -> Developer -> Create local authorization",
@@ -50,7 +60,7 @@
     }
   },
   "short_name": "Followers",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "web_accessible_resources": [
     "css/*.css",
     "images/*.svg",
