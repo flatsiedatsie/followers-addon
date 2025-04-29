@@ -26,7 +26,7 @@ mkdir -p lib package
 #pip3 install  -t lib importlib-metadata>=4.6
 
 #pip3 install -t lib setuptools-scm
-pip3 install git+https://github.com/pypa/setuptools-scm.git -t lib --no-binary :all: --prefix "" --no-cache-dir
+#pip3 install git+https://github.com/pypa/setuptools-scm.git -t lib --no-binary :all: --prefix "" --no-cache-dir
 
 # Pull down Python dependencies
 pip3 install -r requirements.txt -t lib --no-binary :all: --prefix ""
