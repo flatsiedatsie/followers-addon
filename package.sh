@@ -233,36 +233,6 @@ apt install -y python3.11-distutils
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 python3.11 -m pip install --upgrade setuptools wheel
 
-#echo ""
-#echo "PIP OPTIONS AFTER:"
-#python3.11 -m pip debug --verbose
-#echo ""
-
-#PYTHON3PATH=$(which python3.10)
-#echo ""
-#echo ""
-#echo "PYTHON VERSION"
-#file $PYTHON3PATH
-
-"""
-echo
-echo "PACKAGE.SH HALFWAY THERE FOR PYTHON LIBS"
-apt install -y build-essential libdbus-glib-1-dev libgirepository1.0-dev
-python3.11 -m pip install dbus-python
-
-    #home_assistant_chip_clusters-2023.1.0-py3-none-any.whl \
-    #home_assistant_chip_core-2023.1.0-cp37-abi3-manylinux_2_31_aarch64.whl \
-    #home_assistant_chip_repl-2023.1.0-py3-none-any.whl \
-    
-python3.11 -m pip install \
-    python-matter-server[server] \
-    home_assistant_chip_clusters \
-    home_assistant_chip_core \
-    home_assistant_chip_repl \
-    cryptography \
-    -t lib --prefix "" --no-cache-dir
-
-"""
 
 echo ""
 echo ""
@@ -279,19 +249,6 @@ echo ""
 echo
 echo "PACKAGE.SH ALMOST THERE FOR PYTHON LIBS"
 
-"""
-python3.11 -m pip install coloredlogs aiorun requests click click_option_group \
-    -t lib --prefix "" --no-binary :all: --no-cache-dir
-    
-    
-    #home_assistant_chip_clusters \
-    #home_assistant_chip_core \
-    #home_assistant_chip_repl \
-    #home_assistant_chip_clusters-2023.1.0-py3-none-any.whl \
-    #home_assistant_chip_core-2023.1.0-cp37-abi3-manylinux_2_31_aarch64.whl \
-    #home_assistant_chip_core-2023.1.0-py3-none-any.whl \
-    #home_assistant_chip_repl-2023.1.0-py3-none-any.whl \
-"""
     
 
 echo "LS lib after second round of pip:"
