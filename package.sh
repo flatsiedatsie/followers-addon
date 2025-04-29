@@ -231,7 +231,7 @@ echo ""
 
 apt install -y python3.11-distutils
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
-python3.11 -m pip install --upgrade setuptools-scm wheel
+python3.11 -m pip install --upgrade setuptools==70.0.0 wheel
 
 
 echo ""
