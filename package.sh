@@ -256,13 +256,6 @@ ls lib
 
 pip3 install -r requirements.txt -t lib --no-cache-dir --no-binary  :all: --prefix ""
 
-"""
-if [ -f ./lib/aiorun.py ]; then
-  echo "OK aiorun installed succesfully"
-else
-  echo "aiorun FAILED TO INSTALL"
-fi
-"""
 
 # Put package together
 cp -r lib pkg LICENSE manifest.json *.py README.md css images js views  package/
