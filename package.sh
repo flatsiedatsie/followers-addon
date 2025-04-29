@@ -58,6 +58,8 @@ echo "."
 echo ".."
 echo "..."
 echo "Installing lots of stuff"
+
+
 apt install -y \
       wget \
       autoconf \
@@ -89,12 +91,16 @@ apt install -y \
       software-properties-common \
       sudo \
       openssl
-      
+
+
 echo ""
 echo "."
-echo "Attempting libcairo install"
+
+echo "Attempting Phthon 3.11 dev modules"
 apt install -y pkg-config python3.11-dev libpython3.11-dev
-apt install -y libcairo2-dev
+
+#echo "Attempting libcairo install"
+#apt install -y libcairo2-dev
 
 
 
@@ -254,7 +260,7 @@ echo "PACKAGE.SH ALMOST THERE FOR PYTHON LIBS"
 echo "LS lib after second round of pip:"
 ls lib
 
-pip3 install -r requirements.txt -t lib --no-cache-dir --no-binary  :all: --prefix ""
+python3.11 -m pip install -r requirements.txt -t lib --no-cache-dir --no-binary  :all: --prefix ""
 
 
 # Put package together
