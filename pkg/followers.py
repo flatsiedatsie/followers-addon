@@ -110,7 +110,9 @@ class FollowersAPIHandler(APIHandler):
         except Exception as ex:
             print("Error loading config: " + str(ex))
         
-        self.DEBUG = False
+        #self.DEBUG = False
+        
+        
         
         #self.DEBUG = True
         
@@ -192,6 +194,15 @@ class FollowersAPIHandler(APIHandler):
         #    resp = json.loads(message)
 
         #a.m = MethodType(new_m, a)
+        
+        if len(str(self.persistent_data['websocket_host'])) < 2:
+           self.persistent_data['websocket_host'] = 'localhost'
+           
+        if len(str(self.persistent_data['websocket_port'])) == 0:
+           self.persistent_data['websocket_port'] = 8080
+            
+            
+        self.api_server = 'http://' + str(self.persistent_data['websocket_host']) + ':' + str(self.persistent_data['websocket_port'])
             
         
         try:
@@ -1293,6 +1304,9 @@ class FollowersAPIHandler(APIHandler):
                                                                 print("Property: " + str(property_id) + ", was of variable type: " + str(thing['properties'][thing_property_key]['type']))
                                                             self.persistent_data['items'][i]['property2_type'] = str(thing['properties'][thing_property_key]['type'])
 
+                      
+                                    if 'token' in self.persistent_data and len(str(self.persistent_data['token'])) > 10:
+                                        self.connect_to_all_things()
                       
                                 except Exception as ex:
                                     if self.DEBUG:
