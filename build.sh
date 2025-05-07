@@ -4,6 +4,10 @@ ADDON_ARCH="$1"
 LANGUAGE_NAME="$2"
 LANGUAGE_VERSION="$3"
 
+echo "ADDON_ARCH: $ADDON_ARCH"
+echo "LANGUAGE_NAME: $LANGUAGE_NAME"
+echo "LANGUAGE_VERSION: $LANGUAGE_VERSION"
+
 function map_posix_tools() {
   tar() {
     gtar "$@"
@@ -55,12 +59,12 @@ function build_cross_compiled() {
 
 if [[ $LANGUAGE_VERSION -gt 14 ]]
 then
-  echo "The node version is greater than 14."
+  echo "The node version is greater than 14: $LANGUAGE_VERSION"
   install_linux_cross_compiler
   build_native
   
 else
-  echo "The node version is 14 or less."
+  echo "The node version is 14 or less: $LANGUAGE_VERSION"
   case "${ADDON_ARCH}" in
   darwin-x64)
     install_osx_compiler
