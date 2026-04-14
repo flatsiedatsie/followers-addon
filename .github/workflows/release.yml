@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         arch: [armv7]
-        version: ['3.9']
+        version: ['3.11']
         include:
         - distro: bookworm
         - arch: armv7
