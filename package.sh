@@ -235,7 +235,11 @@ echo ""
 #python3.11 -m pip install --upgrade pip
 #python3.11 -m pip install --upgrade setuptools wheel
 
-apt install -y python3.11-distutils
+if [[ $EUID -ne 0 ]]; then
+      sudo apt install -y python3.11-distutils
+else
+      apt install -y python3.11-distutils
+fi
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 python3.11 -m pip install --upgrade setuptools==70.0.0 wheel
 
