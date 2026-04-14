@@ -56,7 +56,7 @@ if [ -z "${ADDON_ARCH}" ]; then
   TARFILE_SUFFIX=
 else
   #PYTHON_VERSION="$(python3 --version 2>&1 | cut -d' ' -f2 | cut -d. -f 1-2)"
-  PYTHON_VERSION="3.11"
+  #PYTHON_VERSION="3.11"
   TARFILE_SUFFIX="-${ADDON_ARCH}-v${PYTHON_VERSION}"
 fi
 
